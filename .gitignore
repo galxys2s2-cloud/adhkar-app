@@ -1,0 +1,33 @@
+# Flutter
+.dart_tool/
+.packages
+build/
+!lib/**/build/
+
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+*.apk
+*.aab
+local.properties
+
+# iOS
+ios/.symlinks/
+ios/Pods/
+ios/build/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flutter pub
+.pub-cache/
+.pub/
