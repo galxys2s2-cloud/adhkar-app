@@ -25,31 +25,9 @@
       font-size: 1.5rem;
     }
   </style>
-  <script>
-    // Service worker registration for PWA
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/adhkar-app/flutter_service_worker.js');
-      });
-    }
-  </script>
 </head>
 <body>
   <div id="loading">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-  <script src="flutter.js" defer></script>
-  <script>
-    window.addEventListener('load', function(ev) {
-      // Download main.dart.js
-      _flutter.loader.load({
-        serviceWorkerSettings: {
-          serviceWorkerVersion: '{{flutter_version}}'
-        }
-      }).then(function(engineInitializer) {
-        return engineInitializer.initializeEngine();
-      }).then(function(appRunner) {
-        return appRunner.runApp();
-      });
-    });
-  </script>
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
