@@ -53,7 +53,7 @@ class _AdhkarCardState extends State<AdhkarCard> {
         ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Bismillah
           if (widget.adhkar.hasBismillah)

@@ -26,7 +26,7 @@ class DuaCard extends StatelessWidget {
         ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Before/after label
           if (duaa.beforeAfter != null)
