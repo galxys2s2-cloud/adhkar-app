@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/constants/app_constants.dart';
 import '../../data/repositories/adhkar_repository.dart';
+import '../../data/models/adhkar_model.dart';
 import '../../shared/widgets/arabesque_bg.dart';
 
 class AdhkarScreen extends ConsumerWidget {
