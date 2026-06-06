@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
@@ -92,10 +93,10 @@ class _ArabesquePainter extends CustomPainter {
     // Star/petal pattern
     for (int i = 0; i < 8; i++) {
       final angle = (i * 3.14159 * 2) / 8;
-      final x1 = center.dx + radius * 0.3 * angle.cos();
-      final y1 = center.dy + radius * 0.3 * angle.sin();
-      final x2 = center.dx + radius * angle.cos();
-      final y2 = center.dy + radius * angle.sin();
+      final x1 = center.dx + radius * 0.3 * cos(angle);
+      final y1 = center.dy + radius * 0.3 * sin(angle);
+      final x2 = center.dx + radius * cos(angle);
+      final y2 = center.dy + radius * sin(angle);
 
       canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint);
     }
