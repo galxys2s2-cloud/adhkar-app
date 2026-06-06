@@ -51,7 +51,7 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'أذكار الصباح والمساء والأدعية المأثورة',
+                    'أذكار وأدعية وتسبيح',
                     style: AppTextStyles.bodyMedium,
                   ),
                   const SizedBox(height: 24),
