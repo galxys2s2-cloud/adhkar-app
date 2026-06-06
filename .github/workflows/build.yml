@@ -11,12 +11,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     
-    container:
-      image: ghcr.io/cirruslabs/flutter:3.27.4
-    
     steps:
       - uses: actions/checkout@v4
       
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.24.5'
+          
       - name: Flutter pub get
         run: flutter pub get
         
