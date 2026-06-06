@@ -69,13 +69,14 @@ class _AdhkarCardState extends State<AdhkarCard> {
                 ),
               ),
             ),
-          // Adhkar text
+          // Adhkar text (softWrap = true to handle long Arabic text like Ayat al-Kursi)
           Text(
             widget.adhkar.arabic,
             style: isDark
                 ? AppTextStyles.adhkarTextDark
                 : AppTextStyles.adhkarText,
             textAlign: TextAlign.center,
+            softWrap: true,
           ),
           const SizedBox(height: 16),
           // Bottom bar: reference + counter

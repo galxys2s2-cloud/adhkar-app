@@ -52,6 +52,7 @@ class DuaCard extends StatelessWidget {
                 ? AppTextStyles.adhkarTextDark
                 : AppTextStyles.adhkarText,
             textAlign: TextAlign.center,
+            softWrap: true,
           ),
           const SizedBox(height: 12),
           // Reference + count

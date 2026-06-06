@@ -4,40 +4,126 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
-import '../../core/constants/app_constants.dart';
 import '../../shared/widgets/arabesque_bg.dart';
 
-// Tasbeeh state provider
-final tasbeehCounterProvider = StateNotifierProvider<TasbeehNotifier, int>((ref) {
+// ---- Tasbeeh state model ----
+
+class TasbeehState {
+  final int currentPhraseIndex;
+  final List<int> progress;
+  final List<int> targets;
+
+  const TasbeehState({
+    this.currentPhraseIndex = 0,
+    required this.progress,
+    required this.targets,
+  });
+
+  /// Total target sum across all phrases
+  int get totalTarget => targets.fold(0, (a, b) => a + b);
+
+  /// Total completed count across all phrases
+  int get totalCompleted => progress.fold(0, (a, b) => a + b);
+
+  /// Overall fraction (0.0–1.0)
+  double get totalProgress =>
+      totalTarget > 0 ? totalCompleted / totalTarget : 0.0;
+
+  /// Whether EVERY phrase has reached its target
+  bool get isComplete => totalCompleted >= totalTarget;
+
+  /// The current phrase's target
+  int get currentTarget => currentPhraseIndex < targets.length
+      ? targets[currentPhraseIndex]
+      : 1;
+
+  /// The current phrase's progress value
+  int get currentProgress => currentPhraseIndex < progress.length
+      ? progress[currentPhraseIndex]
+      : 0;
+
+  /// Fraction for the current phrase circle (0.0–1.0)
+  double get currentFraction =>
+      currentTarget > 0 ? currentProgress / currentTarget : 0.0;
+
+  /// Whether the current phrase has reached its own target
+  bool get currentComplete => currentProgress >= currentTarget;
+
+  /// Whether a specific phrase index is completed
+  bool isPhraseComplete(int index) =>
+      index < progress.length && index < targets.length
+          ? progress[index] >= targets[index]
+          : false;
+}
+
+// ---- Tasbeeh notifier ----
+
+final tasbeehCounterProvider =
+    StateNotifierProvider<TasbeehNotifier, TasbeehState>((ref) {
   return TasbeehNotifier();
 });
 
-class TasbeehNotifier extends StateNotifier<int> {
-  TasbeehNotifier() : super(0);
+class TasbeehNotifier extends StateNotifier<TasbeehState> {
+  static const List<int> defaultTargets = [33, 33, 33, 1];
+
+  TasbeehNotifier()
+      : super(TasbeehState(
+          progress: List.filled(defaultTargets.length, 0),
+          targets: defaultTargets,
+        ));
 
   void increment() {
-    if (state < AppConstants.tasbeehTarget) {
-      state++;
+    if (state.isComplete) return; // all done — no-op
+
+    final newProgress = [...state.progress];
+    int newIndex = state.currentPhraseIndex;
+
+    // Bump current phrase
+    if (newProgress[newIndex] < state.targets[newIndex]) {
+      newProgress[newIndex]++;
       HapticFeedback.lightImpact();
     }
+
+    // Auto-advance: if current phrase is now complete, move to next
+    if (newProgress[newIndex] >= state.targets[newIndex]) {
+      // Find the next incomplete phrase
+      int next = newIndex + 1;
+      while (next < state.targets.length && newProgress[next] >= state.targets[next]) {
+        next++;
+      }
+      if (next < state.targets.length) {
+        newIndex = next;
+      }
+      // If no next incomplete phrase, stay on last index — state will be isComplete
+    }
+
+    state = TasbeehState(
+      currentPhraseIndex: newIndex,
+      progress: newProgress,
+      targets: state.targets,
+    );
   }
 
-  void reset() => state = 0;
-
-  void setCount(int count) => state = count;
+  void reset() {
+    state = TasbeehState(
+      currentPhraseIndex: 0,
+      progress: List.filled(state.targets.length, 0),
+      targets: state.targets,
+    );
+  }
 }
+
+// ---- Screen UI ----
 
 class TasbeehScreen extends ConsumerWidget {
   const TasbeehScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final counter = ref.watch(tasbeehCounterProvider);
+    final tasbeeh = ref.watch(tasbeehCounterProvider);
     final notifier = ref.read(tasbeehCounterProvider.notifier);
-    final progress = counter / AppConstants.tasbeehTarget;
-    final isComplete = counter >= AppConstants.tasbeehTarget;
 
-    // Tasbeeh phrases
+    // Phrase definitions (tied to the state targets)
     final phrases = [
       {'text': 'سُبْحَانَ اللَّهِ', 'target': 33},
       {'text': 'الْحَمْدُ لِلَّهِ', 'target': 33},
@@ -67,7 +153,7 @@ class TasbeehScreen extends ConsumerWidget {
             child: Column(
               children: [
                 const SizedBox(height: 20),
-                // Counter display
+                // Circular counter display
                 GestureDetector(
                   onTap: () => notifier.increment(),
                   onLongPress: () => notifier.reset(),
@@ -97,14 +183,14 @@ class TasbeehScreen extends ConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '$counter',
+                            '${tasbeeh.currentProgress}',
                             style: AppTextStyles.counterNumber.copyWith(
                               color: AppColors.ivory,
                               fontSize: 72,
                             ),
                           ),
                           Text(
-                            'من ${AppConstants.tasbeehTarget}',
+                            'من ${tasbeeh.currentTarget}',
                             style: AppTextStyles.goldLabel.copyWith(
                               color: AppColors.ivory.withValues(alpha: 0.8),
                             ),
@@ -123,11 +209,11 @@ class TasbeehScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                // Progress bar
+                // Total progress bar
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: LinearProgressIndicator(
-                    value: progress,
+                    value: tasbeeh.totalProgress,
                     minHeight: 6,
                     backgroundColor: AppColors.navyMedium,
                     valueColor: const AlwaysStoppedAnimation<Color>(
@@ -137,11 +223,11 @@ class TasbeehScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  isComplete ? '🔵 أتممت التسبيح!' : 'التقدم',
+                  tasbeeh.isComplete ? '🔵 أتممت التسبيح!' : 'التقدم',
                   style: AppTextStyles.bodyMedium,
                 ),
                 const SizedBox(height: 24),
-                // Phrase buttons
+                // Phrase rows
                 Expanded(
                   child: ListView.separated(
                     itemCount: phrases.length,
@@ -151,6 +237,9 @@ class TasbeehScreen extends ConsumerWidget {
                       return _PhraseRow(
                         text: phrase['text'] as String,
                         target: phrase['target'] as int,
+                        progress: tasbeeh.progress[index],
+                        isActive: index == tasbeeh.currentPhraseIndex,
+                        isCompleted: tasbeeh.isPhraseComplete(index),
                       );
                     },
                   ),
@@ -164,18 +253,35 @@ class TasbeehScreen extends ConsumerWidget {
   }
 }
 
+// ---- Phrase row widget ----
+
 class _PhraseRow extends StatelessWidget {
   final String text;
   final int target;
+  final int progress;
+  final bool isActive;
+  final bool isCompleted;
 
   const _PhraseRow({
     required this.text,
     required this.target,
+    required this.progress,
+    required this.isActive,
+    required this.isCompleted,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    Color borderColor;
+    if (isCompleted) {
+      borderColor = AppColors.tealLight;
+    } else if (isActive) {
+      borderColor = AppColors.gold;
+    } else {
+      borderColor = AppColors.gold.withValues(alpha: 0.15);
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -183,29 +289,61 @@ class _PhraseRow extends StatelessWidget {
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.gold.withValues(alpha: 0.15),
+          color: borderColor,
+          width: isActive || isCompleted ? 2.0 : 1.0,
         ),
       ),
       child: Row(
         children: [
+          // Active indicator
+          if (isActive && !isCompleted)
+            Container(
+              width: 8,
+              height: 8,
+              margin: const EdgeInsets.only(left: 8),
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.gold,
+              ),
+            ),
+          if (isCompleted)
+            const Padding(
+              padding: EdgeInsets.only(left: 8),
+              child: Text(
+                '✅',
+                style: TextStyle(fontSize: 14),
+              ),
+          ),
+          // Phrase text
           Expanded(
             child: Text(
               text,
               style: AppTextStyles.headingMedium.copyWith(
                 fontSize: 18,
-                color: isDark ? AppColors.ivory : AppColors.navyDeep,
+                color: isCompleted
+                    ? AppColors.tealLight
+                    : isActive
+                        ? AppColors.gold
+                        : (isDark ? AppColors.ivory : AppColors.navyDeep),
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
               ),
             ),
           ),
+          const SizedBox(width: 8),
+          // Progress badge
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.gold.withValues(alpha: 0.15),
+              color: isCompleted
+                  ? AppColors.tealLight.withValues(alpha: 0.2)
+                  : AppColors.gold.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              '${target}x',
-              style: AppTextStyles.goldLabel,
+              isCompleted ? '✅ $target' : '$progress/$target',
+              style: AppTextStyles.goldLabel.copyWith(
+                color: isCompleted ? AppColors.tealLight : AppColors.gold,
+              ),
             ),
           ),
         ],

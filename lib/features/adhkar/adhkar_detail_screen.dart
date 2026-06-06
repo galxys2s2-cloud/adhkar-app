@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../data/repositories/adhkar_repository.dart';
+import '../../shared/widgets/adhkar_card.dart';
 import '../../shared/widgets/arabesque_bg.dart';
 
 class AdhkarDetailScreen extends ConsumerWidget {
@@ -89,7 +89,7 @@ class AdhkarDetailScreen extends ConsumerWidget {
                 itemCount: items.length,
                 itemBuilder: (context, index) {
                   final adhkar = items[index];
-                  return _buildAdhkarCard(context, adhkar);
+                  return AdhkarCard(adhkar: adhkar);
                 },
               ),
             );
@@ -99,76 +99,4 @@ class AdhkarDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAdhkarCard(BuildContext context, adhkar) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.gold.withValues(alpha: 0.15),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (adhkar.hasBismillah)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Center(
-                child: Text(
-                  'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-                  style: AppTextStyles.adhkarText.copyWith(
-                    fontSize: 18,
-                    color: AppColors.gold,
-                  ),
-                ),
-              ),
-            ),
-          Text(
-            adhkar.arabic,
-            style: isDark
-                ? AppTextStyles.adhkarTextDark
-                : AppTextStyles.adhkarText,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              if (adhkar.count > 1)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.gold.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '${adhkar.count} مرات',
-                    style: AppTextStyles.goldLabel.copyWith(
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              const Spacer(),
-              Text(
-                adhkar.reference,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 12,
-                  color: isDark
-                      ? AppColors.darkTextSecondary
-                      : AppColors.lightTextSecondary,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 }
