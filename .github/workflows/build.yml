@@ -1,15 +1,22 @@
-name: Build APK
+name: Build APK & Web
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     
@@ -39,22 +46,21 @@ jobs:
       - name: Version info
         run: echo "Build v1.0.0+${{ env.BUILD_NUM }}"
         
-      # === Web build for Nano visual testing ===
+      # === Web build for visual testing ===
       - name: Enable Flutter Web
         run: flutter config --enable-web
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
         
       - name: Build Flutter Web
         run: flutter build web --release --base-href /adhkar-app/
         
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web
-          enable_jekyll: false
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
-        
+          path: ./build/web
+      
       - name: Upload APK (Artifact)
         uses: actions/upload-artifact@v4
         with:
@@ -89,3 +95,14 @@ jobs:
             --title "أذكاري v1.0.0" \
             --notes-file /tmp/release-notes.md \
             --latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
