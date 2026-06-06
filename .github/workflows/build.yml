@@ -27,11 +27,17 @@ jobs:
         with:
           channel: 'stable'
           
+      - name: Set build number
+        run: echo "BUILD_NUM=$(git rev-list --count HEAD)" >> $GITHUB_ENV
+      
       - name: Flutter pub get
         run: flutter pub get
         
       - name: Build APK (release)
-        run: flutter build apk --release --split-per-abi --android-skip-build-dependency-validation
+        run: flutter build apk --release --split-per-abi --android-skip-build-dependency-validation --build-number ${{ env.BUILD_NUM }}
+        
+      - name: Version info
+        run: echo "Build v1.0.0+${{ env.BUILD_NUM }}"
         
       - name: Upload APK (Artifact)
         uses: actions/upload-artifact@v4
