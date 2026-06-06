@@ -39,6 +39,22 @@ jobs:
       - name: Version info
         run: echo "Build v1.0.0+${{ env.BUILD_NUM }}"
         
+      # === Web build for Nano visual testing ===
+      - name: Enable Flutter Web
+        run: flutter config --enable-web
+        
+      - name: Build Flutter Web
+        run: flutter build web --release --base-href /adhkar-app/
+        
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
+          enable_jekyll: false
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+        
       - name: Upload APK (Artifact)
         uses: actions/upload-artifact@v4
         with:
