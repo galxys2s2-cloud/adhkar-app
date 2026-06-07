@@ -1,0 +1,105 @@
+[
+  {
+    "id": "sleep_1",
+    "category": "sleep",
+    "arabic": "بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ، إِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ",
+    "translation": "In Your name, my Lord, I lay my side. And in Your name I raise it. If You take my soul, have mercy upon it. And if You release it, protect it with that which You protect Your righteous servants.",
+    "transliteration": "Bismika Rabbi wada'tu janbi, wa bika arfa'uh. In amsakta nafsi farhamha, wa in arsaltaha fahfazha bima tahfazu bihi 'ibadakas-salihin.",
+    "reference": "صحيح البخاري / صحيح مسلم",
+    "count": 1,
+    "has_bismillah": false
+  },
+  {
+    "id": "sleep_2",
+    "category": "sleep",
+    "arabic": "اللَّهُمَّ إِنَّكَ خَلَقْتَ نَفْسِي وَأَنْتَ تَوَفَّاهَا، لَكَ مَمَاتُهَا وَمَحْيَاهَا، إِنْ أَحْيَيْتَهَا فَاحْفَظْهَا، وَإِنْ أَمَتَّهَا فَاغْفِرْ لَهَا، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَافِيَةَ",
+    "translation": "O Allah, You have created my soul and You will take it in death. To You belongs its death and its life. If You give it life, protect it. And if You cause it to die, forgive it. O Allah, I ask You for well-being.",
+    "transliteration": "Allahumma innaka khalaqta nafsi wa Anta tawaffaha, laka mamatuha wa mahyaha. In ahyaytaha fahfazha, wa in amattaha faghfir laha. Allahumma inni as'alukal-'afiyah.",
+    "reference": "صحيح مسلم",
+    "count": 1,
+    "has_bismillah": false
+  },
+  {
+    "id": "sleep_3",
+    "category": "sleep",
+    "arabic": "اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ",
+    "translation": "O Allah, protect me from Your punishment on the Day You resurrect Your servants.",
+    "transliteration": "Allahumma qini 'adhabaka yawma tab'athu 'ibadak.",
+    "reference": "سنن الترمذي (حسن)",
+    "count": 1,
+    "has_bismillah": false
+  },
+  {
+    "id": "sleep_4",
+    "category": "sleep",
+    "arabic": "اللَّهُمَّ بِاسْمِكَ أَمُوتُ وَأَحْيَا",
+    "translation": "O Allah, in Your name I die and I live.",
+    "transliteration": "Allahumma bismika amutu wa ahya.",
+    "reference": "صحيح البخاري",
+    "count": 1,
+    "has_bismillah": false
+  },
+  {
+    "id": "sleep_5",
+    "category": "sleep",
+    "arabic": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ غَضَبِهِ وَعِقَابِهِ، وَشَرِّ عِبَادِهِ، وَهَمَزَاتِ الشَّيَاطِينِ وَأَنْ يَحْضُرُونِ",
+    "translation": "I seek refuge in the perfect words of Allah from His anger and His punishment, and from the evil of His servants, and from the whispers of the devils, and that they should be present with me.",
+    "transliteration": "A'udhu bi kalimatil-lahit-tammati min ghadabihi wa 'iqabihi, wa sharri 'ibadihi, wa hamazatish-shayatin wa an yahdurun.",
+    "reference": "سنن الترمذي (حسن)",
+    "count": 1,
+    "has_bismillah": false
+  },
+  {
+    "id": "sleep_6",
+    "category": "sleep",
+    "arabic": "اللَّهُمَّ رَبَّ السَّمَاوَاتِ وَرَبَّ الْأَرْضِ وَرَبَّ الْعَرْشِ الْعَظِيمِ، رَبَّنَا وَرَبَّ كُلِّ شَيْءٍ، فَالِقَ الْحَبِّ وَالنَّوَىٰ، وَمُنْزِلَ التَّوْرَاةِ وَالْإِنْجِيلِ وَالْفُرْقَانِ، أَعُوذُ بِكَ مِنْ شَرِّ كُلِّ شَيْءٍ أَنْتَ آخِذٌ بِنَاصِيَتِهِ",
+    "translation": "O Allah, Lord of the heavens and Lord of the earth and Lord of the Mighty Throne. Our Lord and the Lord of all things. Splitter of the grain and the date seed. Revealer of the Torah, the Gospel, and the Furqan. I seek refuge in You from the evil of every thing of which You seize the forelock.",
+    "transliteration": "Allahumma Rabbus-samawati wa Rabbul-ardi wa Rabbal-'arshil-'azim. Rabbana wa Rabba kulli shay'. Faliqal-habbi wan-nawa, wa Munzilat-Tawrati wal-Injili wal-Furqan. A'udhu bika min sharri kulli shay'in Anta akhidhun binasiyatih.",
+    "reference": "سنن الترمذي (صحيح)",
+    "count": 1,
+    "has_bismillah": false
+  },
+  {
+    "id": "sleep_7",
+    "category": "sleep",
+    "arabic": "اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا فِيهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ هَذِهِ اللَّيْلَةِ وَشَرِّ مَا فِيهَا",
+    "translation": "O Allah, I ask You for the good of this night and the good that is in it. And I seek refuge in You from the evil of this night and the evil that is in it.",
+    "transliteration": "Allahumma inni as'aluka khayra hadhihil-laylati wa khayra ma fiha, wa a'udhu bika min sharri hadhihil-laylati wa sharri ma fiha.",
+    "reference": "سنن أبي داود (صحيح)",
+    "count": 1,
+    "has_bismillah": false
+  },
+  {
+    "id": "sleep_8",
+    "category": "sleep",
+    "arabic": "سُبْحَانَ اللَّهِ (٣٣)\nالْحَمْدُ لِلَّهِ (٣٣)\nاللَّهُ أَكْبَرُ (٣٣)",
+    "translation": "Glory is to Allah (33 times). All praise is for Allah (33 times). Allah is the Greatest (33 times).",
+    "transliteration": "Subhanallah (33 times). Alhamdulillah (33 times). Allahu Akbar (33 times).",
+    "reference": "صحيح البخاري / صحيح مسلم",
+    "count": 1,
+    "has_bismillah": false,
+    "virtue": "خير من ألف ركعة"
+  },
+  {
+    "id": "sleep_9",
+    "category": "sleep",
+    "arabic": "آيَةُ الْكُرْسِيِّ",
+    "translation": "Allah - there is no deity except Him, the Ever-Living, the Sustainer of existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great.",
+    "transliteration": "Allahu la ilaha illa Huwal-Hayyul-Qayyum, la ta'khudhuhu sinatun wa la nawm, lahu ma fis-samawati wa ma fil-ard, man dhal-ladhi yashfa'u 'indahu illa bi-idhnih, ya'lamu ma bayna aydihim wa ma khalfahum, wa la yuhituna bishay'im-min 'ilmihi illa bima sha', wasi'a Kursiyyuhus-samawati wal-ard, wa la ya'uduhu hifzuhuma, wa Huwal-'Aliyyul-'Azim.",
+    "reference": "سورة البقرة 255",
+    "count": 1,
+    "has_bismillah": false,
+    "virtue": "من قرأها حين يأوي إلى فراشه لم يزل عليه من الله حافظ ولا يقربه شيطان حتى يصبح"
+  },
+  {
+    "id": "sleep_10",
+    "category": "sleep",
+    "arabic": "قُلْ هُوَ اللَّهُ أَحَدٌ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ",
+    "translation": "Say: He is Allah, the One. Allah, the Eternal Refuge. He neither begets nor is born. Nor is there to Him any equivalent. Say: I seek refuge in the Lord of daybreak. From the evil of that which He created. And from the evil of darkness when it settles. And from the evil of the blowers in knots. And from the evil of an envier when he envies. Say: I seek refuge in the Lord of mankind. The Sovereign of mankind. The God of mankind. From the evil of the retreating whisperer. Who whispers in the breasts of mankind. From among the jinn and mankind.",
+    "transliteration": "Qul Huwal-lahu Ahad. Allahus-Samad. Lam yalid wa lam yulad. Wa lam yakul-lahu kufuwan ahad. Qul a'udhu bi Rabbil-falaq. Min sharri ma khalaq. Wa min sharri ghasiqin idha waqab. Wa min sharrin-naffathati fil-'uqad. Wa min sharri hasidin idha hasad. Qul a'udhu bi Rabin-nas. Malikin-nas. Ilahin-nas. Min sharril-waswasil-khannas. Alladhi yuwaswisu fi sudurin-nas. Minal-jinnati wan-nas.",
+    "reference": "صحيح البخاري / صحيح مسلم",
+    "count": 1,
+    "has_bismillah": false,
+    "virtue": "تقرأ معاً ثلاث مرات تكفي من كل شيء"
+  }
+]
