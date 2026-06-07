@@ -3,6 +3,7 @@ name: Build APK & Web
 on:
   push:
     branches: [main]
+    tags: ['v*']
   workflow_dispatch:
 
 permissions:
@@ -38,7 +39,13 @@ jobs:
         run: flutter build apk --release --split-per-abi --android-skip-build-dependency-validation --build-number ${{ env.BUILD_NUM }}
         
       - name: Version info
-        run: echo "Build v2.0.0+${{ env.BUILD_NUM }}"
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "VERSION_TAG=${{ github.ref_name }}" >> $GITHUB_ENV
+          else
+            echo "VERSION_TAG=v2.1.0" >> $GITHUB_ENV
+          fi
+          echo "Build ${{ env.VERSION_TAG }}+${{ env.BUILD_NUM }}"
         
       # === Web build for visual testing ===
       - name: Enable Flutter Web
@@ -68,9 +75,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          TAG="v2.0.0"
+          TAG="${{ env.VERSION_TAG }}"
           cat > /tmp/release-notes.md << EOF
-          تطبيق الأذكار — النسخة v2.0.0
+          تطبيق الأذكار — النسخة ${TAG}
 
           * أذكار الصباح والمساء
           * أدعية مأثورة (نوم، استيقاظ، أكل، سفر، عامة)
@@ -79,6 +86,7 @@ jobs:
           * واجهة تراثية عربية (خط Amiri)
           * مشاركة ونسخ الأذكار
           * إشعارات موقّتة (صباح ومساء)
+          * 🔍 بحث فوري في الأذكار والأدعية
 
           ⚡ Offline-First — لا يحتاج إنترنت
 
@@ -89,6 +97,6 @@ jobs:
           gh release delete "$TAG" --cleanup-tag --yes 2>/dev/null || true
           gh release create "$TAG" \
             build/app/outputs/flutter-apk/app-*-release.apk \
-            --title "أذكاري v2.0.0" \
+            --title "أذكاري ${TAG}" \
             --notes-file /tmp/release-notes.md \
             --latest
