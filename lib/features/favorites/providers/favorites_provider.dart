@@ -20,6 +20,10 @@ class FavoritesState {
       duaaIds: duaaIds ?? this.duaaIds,
     );
   }
+
+  bool isAdhkarFavorite(String id) => adhkarIds.contains(id);
+  bool isDuaaFavorite(String id) => duaaIds.contains(id);
+  int get totalCount => adhkarIds.length + duaaIds.length;
 }
 
 class FavoritesNotifier extends StateNotifier<FavoritesState> {
@@ -81,11 +85,6 @@ class FavoritesNotifier extends StateNotifier<FavoritesState> {
     state = state.copyWith(duaaIds: current);
     _saveDuaa();
   }
-
-  bool isAdhkarFavorite(String id) => state.adhkarIds.contains(id);
-  bool isDuaaFavorite(String id) => state.duaaIds.contains(id);
-
-  int get totalCount => state.adhkarIds.length + state.duaaIds.length;
 }
 
 final favoritesProvider =

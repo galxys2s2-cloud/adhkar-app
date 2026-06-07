@@ -98,7 +98,7 @@ class AdhkarScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            Icon(
+            const Icon(
               Icons.chevron_left,
               color: AppColors.gold,
             ),

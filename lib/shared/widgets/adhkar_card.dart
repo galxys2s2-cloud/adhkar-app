@@ -226,7 +226,7 @@ class _AdhkarCardState extends State<AdhkarCard> {
                       ),
                       if (_remainingCount > 0) ...[
                         const SizedBox(width: 6),
-                        Icon(
+                        const Icon(
                           Icons.touch_app,
                           size: 16,
                           color: AppColors.gold,

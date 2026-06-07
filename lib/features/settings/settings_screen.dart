@@ -44,7 +44,7 @@ class SettingsScreen extends ConsumerWidget {
                 subtitle: 'تغيير مظهر التطبيق',
                 trailing: Switch.adaptive(
                   value: isDark,
-                  activeColor: AppColors.gold,
+                  activeTrackColor: AppColors.gold,
                   onChanged: (value) {
                     ref.read(themeModeProvider.notifier).state =
                         value ? ThemeMode.dark : ThemeMode.light;
@@ -63,7 +63,7 @@ class SettingsScreen extends ConsumerWidget {
                 subtitle: 'تنبيه يومي بعد الفجر (٦:٠٠ صباحاً)',
                 trailing: Switch.adaptive(
                   value: true,
-                  activeColor: AppColors.gold,
+                  activeTrackColor: AppColors.gold,
                   onChanged: (value) {},
                 ),
               ),
@@ -75,7 +75,7 @@ class SettingsScreen extends ConsumerWidget {
                 subtitle: 'تنبيه يومي قبل المغرب (٥:٠٠ مساء)',
                 trailing: Switch.adaptive(
                   value: true,
-                  activeColor: AppColors.gold,
+                  activeTrackColor: AppColors.gold,
                   onChanged: (value) {},
                 ),
               ),
@@ -87,7 +87,7 @@ class SettingsScreen extends ConsumerWidget {
                 subtitle: 'تذكير للتسبيح خلال اليوم',
                 trailing: Switch.adaptive(
                   value: true,
-                  activeColor: AppColors.gold,
+                  activeTrackColor: AppColors.gold,
                   onChanged: (value) {},
                 ),
               ),
@@ -101,9 +101,9 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.info_outline,
                 title: AppConstants.appName,
                 subtitle: 'الإصدار ${AppConstants.appVersion}',
-                trailing: Text(
+                trailing: const Text(
                   '🕌',
-                  style: const TextStyle(fontSize: 24),
+                  style: TextStyle(fontSize: 24),
                 ),
               ),
               const SizedBox(height: 24),

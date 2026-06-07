@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_text_styles.dart';
-import '../models/adhkar_model.dart';
-import '../repositories/adhkar_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/theme/app_colors.dart';
 
 /// Shows a daily notification for morning/evening adhkar
 class NotificationService {
@@ -42,8 +39,6 @@ class DailyAdhkarWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     // Check time of day to show morning or evening adhkar
     final hour = DateTime.now().hour;
     final isMorning = hour < 12;
