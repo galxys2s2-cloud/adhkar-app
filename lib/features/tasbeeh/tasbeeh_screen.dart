@@ -140,6 +140,10 @@ class TasbeehScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.bar_chart),
+            onPressed: () => context.push('/tasbeeh/stats'),
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => notifier.reset(),
           ),

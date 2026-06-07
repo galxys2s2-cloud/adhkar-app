@@ -1,7 +1,7 @@
 name: adhkar_app
 description: تطبيق الأذكار — أذكار الصباح والمساء، أدعية مأثورة، تسبيح إلكتروني
 publish_to: 'none'
-version: 1.0.0+1
+version: 2.0.0+1
 
 environment:
   sdk: ^3.2.0
@@ -14,6 +14,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   flutter_local_notifications: ^17.2.1
+  timezone: ^0.9.4
   vibration: ^2.0.1
   flutter_animate: ^4.5.0
   intl: ^0.19.0

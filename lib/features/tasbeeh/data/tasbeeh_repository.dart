@@ -95,7 +95,6 @@ class TasbeehRepository {
     for (final entry in _box.toMap().entries) {
       if (entry.key.startsWith('_')) continue; // skip meta keys
       final map = entry.value;
-      if (map == null) continue;
       if (map['date'] == dateStr) {
         total += (map['count'] as int?) ?? 0;
       }

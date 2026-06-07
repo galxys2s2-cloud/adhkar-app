@@ -38,7 +38,7 @@ jobs:
         run: flutter build apk --release --split-per-abi --android-skip-build-dependency-validation --build-number ${{ env.BUILD_NUM }}
         
       - name: Version info
-        run: echo "Build v1.0.0+${{ env.BUILD_NUM }}"
+        run: echo "Build v2.0.0+${{ env.BUILD_NUM }}"
         
       # === Web build for visual testing ===
       - name: Enable Flutter Web
@@ -68,15 +68,17 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          TAG="v1.0.0"
+          TAG="v2.0.0"
           cat > /tmp/release-notes.md << EOF
-          تطبيق الأذكار — النسخة v1.0.0
+          تطبيق الأذكار — النسخة v2.0.0
 
           * أذكار الصباح والمساء
           * أدعية مأثورة (نوم، استيقاظ، أكل، سفر، عامة)
           * أذكار بعد الصلاة
-          * عداد تسبيح مع auto-advance
+          * عداد تسبيح مع إحصائيات
           * واجهة تراثية عربية (خط Amiri)
+          * مشاركة ونسخ الأذكار
+          * إشعارات موقّتة (صباح ومساء)
 
           ⚡ Offline-First — لا يحتاج إنترنت
 
@@ -87,6 +89,6 @@ jobs:
           gh release delete "$TAG" --cleanup-tag --yes 2>/dev/null || true
           gh release create "$TAG" \
             build/app/outputs/flutter-apk/app-*-release.apk \
-            --title "أذكاري v1.0.0" \
+            --title "أذكاري v2.0.0" \
             --notes-file /tmp/release-notes.md \
             --latest

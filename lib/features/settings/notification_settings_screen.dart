@@ -17,7 +17,6 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
 
 class _NotificationSettingsScreenState
     extends ConsumerState<NotificationSettingsScreen> {
-  bool _permissionChecked = false;
 
   @override
   void initState() {
@@ -37,7 +36,6 @@ class _NotificationSettingsScreenState
     }
     // Also request exact alarm permission for scheduling
     await service.requestExactAlarmPermission();
-    setState(() => _permissionChecked = true);
   }
 
   void _showPermissionSnack() {
@@ -109,7 +107,7 @@ class _NotificationSettingsScreenState
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: AppColors.teal, size: 24),
+                    const Icon(Icons.info_outline, color: AppColors.teal, size: 24),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -134,7 +132,7 @@ class _NotificationSettingsScreenState
                     : 'الإشعار موقف',
                 trailing: Switch.adaptive(
                   value: settings.morningEnabled,
-                  activeColor: AppColors.gold,
+                  activeTrackColor: AppColors.gold,
                   onChanged: (value) => notifier.toggleMorning(value),
                 ),
                 onTap: () => notifier.toggleMorning(!settings.morningEnabled),
@@ -174,7 +172,7 @@ class _NotificationSettingsScreenState
                     : 'الإشعار موقف',
                 trailing: Switch.adaptive(
                   value: settings.eveningEnabled,
-                  activeColor: AppColors.gold,
+                  activeTrackColor: AppColors.gold,
                   onChanged: (value) => notifier.toggleEvening(value),
                 ),
                 onTap: () => notifier.toggleEvening(!settings.eveningEnabled),
@@ -207,6 +205,7 @@ class _NotificationSettingsScreenState
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () async {
+                    final messenger = ScaffoldMessenger.of(context);
                     await NotificationService().cancelAll();
                     await notifier.save(
                       settings.copyWith(
@@ -214,14 +213,13 @@ class _NotificationSettingsScreenState
                         eveningEnabled: false,
                       ),
                     );
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('✅ تم إلغاء جميع الإشعارات'),
-                          backgroundColor: AppColors.teal,
-                        ),
-                      );
-                    }
+                    if (!mounted) return;
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('✅ تم إلغاء جميع الإشعارات'),
+                        backgroundColor: AppColors.teal,
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.notifications_off, size: 18),
                   label: const Text('إلغاء جميع الإشعارات'),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/constants/app_constants.dart';
+import '../../shared/utils/notification_service.dart';
 import '../../shared/widgets/arabesque_bg.dart';
 
 // Theme mode provider
@@ -11,12 +12,20 @@ final themeModeProvider = StateProvider<ThemeMode>((ref) {
   return ThemeMode.light;
 });
 
+// Notification toggle providers
+final morningAdhkarEnabledProvider = StateProvider<bool>((ref) => false);
+final eveningAdhkarEnabledProvider = StateProvider<bool>((ref) => false);
+final randomTasbeehEnabledProvider = StateProvider<bool>((ref) => false);
+
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final morningEnabled = ref.watch(morningAdhkarEnabledProvider);
+    final eveningEnabled = ref.watch(eveningAdhkarEnabledProvider);
+    final tasbeehEnabled = ref.watch(randomTasbeehEnabledProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -62,9 +71,16 @@ class SettingsScreen extends ConsumerWidget {
                 title: 'أذكار الصباح',
                 subtitle: 'تنبيه يومي بعد الفجر (٦:٠٠ صباحاً)',
                 trailing: Switch.adaptive(
-                  value: true,
+                  value: morningEnabled,
                   activeTrackColor: AppColors.gold,
-                  onChanged: (value) {},
+                  onChanged: (value) async {
+                    ref.read(morningAdhkarEnabledProvider.notifier).state = value;
+                    if (value) {
+                      await NotificationService.scheduleMorningAdhkar();
+                    } else {
+                      await NotificationService.cancelMorningAdhkar();
+                    }
+                  },
                 ),
               ),
               const SizedBox(height: 8),
@@ -74,9 +90,16 @@ class SettingsScreen extends ConsumerWidget {
                 title: 'أذكار المساء',
                 subtitle: 'تنبيه يومي قبل المغرب (٥:٠٠ مساء)',
                 trailing: Switch.adaptive(
-                  value: true,
+                  value: eveningEnabled,
                   activeTrackColor: AppColors.gold,
-                  onChanged: (value) {},
+                  onChanged: (value) async {
+                    ref.read(eveningAdhkarEnabledProvider.notifier).state = value;
+                    if (value) {
+                      await NotificationService.scheduleEveningAdhkar();
+                    } else {
+                      await NotificationService.cancelEveningAdhkar();
+                    }
+                  },
                 ),
               ),
               const SizedBox(height: 8),
@@ -86,9 +109,16 @@ class SettingsScreen extends ConsumerWidget {
                 title: 'تذكير عشوائي (سبحلي)',
                 subtitle: 'تذكير للتسبيح خلال اليوم',
                 trailing: Switch.adaptive(
-                  value: true,
+                  value: tasbeehEnabled,
                   activeTrackColor: AppColors.gold,
-                  onChanged: (value) {},
+                  onChanged: (value) async {
+                    ref.read(randomTasbeehEnabledProvider.notifier).state = value;
+                    if (value) {
+                      await NotificationService.scheduleRandomTasbeeh();
+                    } else {
+                      await NotificationService.cancelRandomTasbeeh();
+                    }
+                  },
                 ),
               ),
               const SizedBox(height: 24),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../shared/widgets/arabesque_bg.dart';
@@ -22,7 +22,6 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
   Widget build(BuildContext context) {
     final selectedTab = ref.watch(statsTabProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? AppColors.darkBg : AppColors.lightBg;
     final surfaceColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
     final textColor = isDark ? AppColors.ivory : AppColors.navyDeep;
 
@@ -435,8 +434,8 @@ class _BarChartPainter extends CustomPainter {
     final entries = data.entries.toList();
     if (entries.isEmpty) return;
 
-    final padding = 24.0;
-    final bottomPadding = 28.0;
+    const padding = 24.0;
+    const bottomPadding = 28.0;
     final availableWidth = size.width - (padding * 2);
     final barWidth = availableWidth / entries.length;
     final maxBarHeight = size.height - bottomPadding - padding;

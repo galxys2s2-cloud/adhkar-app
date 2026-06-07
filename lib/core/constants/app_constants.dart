@@ -24,9 +24,16 @@ class AppConstants {
   // Notifications
   static const String notifChannelId = 'adhkar_channel';
   static const String notifChannelName = 'الأذكار';
+  static const String notifChannelDesc = 'تذكيرات يومية بأذكار الصباح والمساء';
   static const String notifMorningId = 'morning_adhkar';
   static const String notifEveningId = 'evening_adhkar';
   static const String notifRandomId = 'random_tasbeeh';
+  static const String payloadMorning = 'morning';
+  static const String payloadEvening = 'evening';
+  static const int defaultMorningHour = 7;
+  static const int defaultMorningMinute = 0;
+  static const int defaultEveningHour = 18;
+  static const int defaultEveningMinute = 0;
 
   // Tasbeeh defaults
   static const int tasbeehTarget = 33;
@@ -34,5 +41,5 @@ class AppConstants {
 
   // App info
   static const String appName = 'الأذكار';
-  static const String appVersion = '1.0.0';
+  static const String appVersion = '2.0.0';
 }

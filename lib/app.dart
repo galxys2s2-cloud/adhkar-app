@@ -8,6 +8,7 @@ import 'features/adhkar/adhkar_screen.dart';
 import 'features/adhkar/adhkar_detail_screen.dart';
 import 'features/duaa/duaa_screen.dart';
 import 'features/tasbeeh/tasbeeh_screen.dart';
+import 'features/tasbeeh/presentation/stats_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/favorites/presentation/favorites_screen.dart';
 import 'features/favorites/providers/favorites_provider.dart';
@@ -59,6 +60,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppConstants.routeTasbeeh,
         name: 'tasbeeh',
         builder: (context, state) => const TasbeehScreen(),
+      ),
+      GoRoute(
+        path: '/tasbeeh/stats',
+        name: 'tasbeeh_stats',
+        builder: (context, state) => const StatsScreen(),
       ),
     ],
   );
