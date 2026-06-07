@@ -7,6 +7,7 @@ class AppConstants {
   static const String routeDuaa = '/duaa';
   static const String routeTasbeeh = '/tasbeeh';
   static const String routeSettings = '/settings';
+  static const String routeFavorites = '/favorites';
 
   // Adhkar categories
   static const String categoryMorning = 'morning';
@@ -34,7 +35,4 @@ class AppConstants {
   // App info
   static const String appName = 'الأذكار';
   static const String appVersion = '1.0.0';
-
-  // Share link
-  static const String appLink = 'https://github.com/galxys2s2-cloud/adhkar-app';
 }

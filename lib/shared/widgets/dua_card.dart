@@ -5,7 +5,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../data/models/adhkar_model.dart';
 import '../../features/favorites/providers/favorites_provider.dart';
 
-class DuaCard extends StatefulWidget {
+class DuaCard extends ConsumerStatefulWidget {
   final DuaaModel duaa;
 
   const DuaCard({
@@ -14,10 +14,10 @@ class DuaCard extends StatefulWidget {
   });
 
   @override
-  State<DuaCard> createState() => _DuaCardState();
+  ConsumerState<DuaCard> createState() => _DuaCardState();
 }
 
-class _DuaCardState extends State<DuaCard> {
+class _DuaCardState extends ConsumerState<DuaCard> {
   bool _isExpanded = false;
 
   void _toggleExpansion() {

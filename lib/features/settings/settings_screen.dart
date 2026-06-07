@@ -5,7 +5,6 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/constants/app_constants.dart';
 import '../../shared/widgets/arabesque_bg.dart';
-import 'notification_settings_provider.dart';
 
 // Theme mode provider
 final themeModeProvider = StateProvider<ThemeMode>((ref) {
@@ -18,15 +17,16 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final notifSettings = ref.watch(notificationSettingsProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('الإعدادات'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
+        leading: context.canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.pop(),
+              )
+            : null,
       ),
       body: ArabesqueBackground(
         child: Directionality(
@@ -60,59 +60,36 @@ class SettingsScreen extends ConsumerWidget {
                 context,
                 icon: Icons.notifications_active,
                 title: 'أذكار الصباح',
-                subtitle: notifSettings.morningEnabled
-                    ? 'مفعّل — ${_formatTime(notifSettings.morningHour, notifSettings.morningMinute)}'
-                    : 'معطّل',
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Switch.adaptive(
-                      value: notifSettings.morningEnabled,
-                      activeColor: AppColors.gold,
-                      onChanged: (value) {
-                        ref
-                            .read(notificationSettingsProvider.notifier)
-                            .toggleMorning(value);
-                      },
-                    ),
-                    const Icon(Icons.chevron_left, color: AppColors.gold),
-                  ],
+                subtitle: 'تنبيه يومي بعد الفجر (٦:٠٠ صباحاً)',
+                trailing: Switch.adaptive(
+                  value: true,
+                  activeColor: AppColors.gold,
+                  onChanged: (value) {},
                 ),
-                onTap: () => context.push(AppConstants.routeNotificationSettings),
               ),
               const SizedBox(height: 8),
               _buildSettingCard(
                 context,
                 icon: Icons.notifications_active,
                 title: 'أذكار المساء',
-                subtitle: notifSettings.eveningEnabled
-                    ? 'مفعّل — ${_formatTime(notifSettings.eveningHour, notifSettings.eveningMinute)}'
-                    : 'معطّل',
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Switch.adaptive(
-                      value: notifSettings.eveningEnabled,
-                      activeColor: AppColors.gold,
-                      onChanged: (value) {
-                        ref
-                            .read(notificationSettingsProvider.notifier)
-                            .toggleEvening(value);
-                      },
-                    ),
-                    const Icon(Icons.chevron_left, color: AppColors.gold),
-                  ],
+                subtitle: 'تنبيه يومي قبل المغرب (٥:٠٠ مساء)',
+                trailing: Switch.adaptive(
+                  value: true,
+                  activeColor: AppColors.gold,
+                  onChanged: (value) {},
                 ),
-                onTap: () => context.push(AppConstants.routeNotificationSettings),
               ),
               const SizedBox(height: 8),
               _buildSettingCard(
                 context,
-                icon: Icons.settings,
-                title: 'إعدادات الإشعارات',
-                subtitle: 'تخصيص الوقت والتنبيهات',
-                trailing: const Icon(Icons.chevron_left, color: AppColors.gold),
-                onTap: () => context.push(AppConstants.routeNotificationSettings),
+                icon: Icons.notifications,
+                title: 'تذكير عشوائي (سبحلي)',
+                subtitle: 'تذكير للتسبيح خلال اليوم',
+                trailing: Switch.adaptive(
+                  value: true,
+                  activeColor: AppColors.gold,
+                  onChanged: (value) {},
+                ),
               ),
               const SizedBox(height: 24),
 
@@ -124,9 +101,9 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.info_outline,
                 title: AppConstants.appName,
                 subtitle: 'الإصدار ${AppConstants.appVersion}',
-                trailing: const Text(
+                trailing: Text(
                   '🕌',
-                  style: TextStyle(fontSize: 24),
+                  style: const TextStyle(fontSize: 24),
                 ),
               ),
               const SizedBox(height: 24),
@@ -173,56 +150,46 @@ class SettingsScreen extends ConsumerWidget {
     required String title,
     required String subtitle,
     Widget? trailing,
-    VoidCallback? onTap,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: AppColors.gold.withValues(alpha: 0.15),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: AppColors.gold, size: 24),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: AppTextStyles.headingMedium.copyWith(
-                      fontSize: 16,
-                      color: isDark ? AppColors.ivory : AppColors.navyDeep,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (trailing != null) trailing,
-          ],
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.gold.withValues(alpha: 0.15),
         ),
       ),
+      child: Row(
+        children: [
+          Icon(icon, color: AppColors.gold, size: 24),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTextStyles.headingMedium.copyWith(
+                    fontSize: 16,
+                    color: isDark ? AppColors.ivory : AppColors.navyDeep,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (trailing != null) trailing,
+        ],
+      ),
     );
-  }
-
-  String _formatTime(int hour, int minute) {
-    final h = hour.toString().padLeft(2, '0');
-    final m = minute.toString().padLeft(2, '0');
-    return '$h:$m';
   }
 }
 

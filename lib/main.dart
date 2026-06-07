@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'app.dart';
 import 'core/theme/app_theme.dart';
 import 'features/settings/settings_screen.dart';
@@ -11,6 +12,8 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  await Hive.initFlutter();
+  await Hive.openBox<String>('favorites');
   runApp(
     const ProviderScope(
       child: AdhkarApp(),

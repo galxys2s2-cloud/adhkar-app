@@ -69,6 +69,13 @@ class AdhkarRepository {
     }
   }
 
+  Future<List<AdhkarModel>> loadAllAdhkar() async {
+    final morning = await loadMorningAdhkar();
+    final evening = await loadEveningAdhkar();
+    final afterPrayer = await loadAfterPrayerAdhkar();
+    return [...morning, ...evening, ...afterPrayer];
+  }
+
   List<CategoryModel> getAdhkarCategories() {
     return [
       CategoryModel(
