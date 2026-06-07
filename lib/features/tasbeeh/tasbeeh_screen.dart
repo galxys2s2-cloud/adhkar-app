@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../shared/widgets/arabesque_bg.dart';
@@ -313,7 +315,7 @@ class _PhraseRow extends StatelessWidget {
                 '✅',
                 style: TextStyle(fontSize: 14),
               ),
-          ),
+            ),
           // Phrase text
           Expanded(
             child: Text(
@@ -346,7 +348,54 @@ class _PhraseRow extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(width: 8),
+          // Share button
+          _ShareTasbeehButton(text: text),
         ],
+      ),
+    );
+  }
+}
+
+// ---- Share button for tasbeeh phrases ----
+
+class _ShareTasbeehButton extends StatelessWidget {
+  final String text;
+
+  const _ShareTasbeehButton({required this.text});
+
+  void _share(BuildContext context) {
+    final shareText = '$text\n\n${AppConstants.appLink}';
+    Share.share(shareText, subject: AppConstants.appName);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Material(
+      color: Colors.transparent,
+      child: Tooltip(
+        message: 'مشاركة',
+        child: InkWell(
+          onTap: () => _share(context),
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.gold.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppColors.gold.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Icon(
+              Icons.share,
+              size: 16,
+              color: isDark ? AppColors.goldLight : AppColors.gold,
+            ),
+          ),
+        ),
       ),
     );
   }

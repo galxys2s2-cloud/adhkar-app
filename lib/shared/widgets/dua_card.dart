@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../data/models/adhkar_model.dart';
@@ -10,6 +13,32 @@ class DuaCard extends StatelessWidget {
     super.key,
     required this.duaa,
   });
+
+  String get _shareText {
+    final buffer = StringBuffer();
+    buffer.writeln(duaa.arabic);
+    if (duaa.translation != null && duaa.translation!.isNotEmpty) {
+      buffer.writeln();
+      buffer.writeln(duaa.translation);
+    }
+    buffer.writeln();
+    buffer.writeln(AppConstants.appLink);
+    return buffer.toString();
+  }
+
+  void _shareDuaa(BuildContext context) {
+    Share.share(_shareText, subject: AppConstants.appName);
+  }
+
+  void _copyToClipboard(BuildContext context) {
+    Clipboard.setData(ClipboardData(text: duaa.arabic));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('تم النسخ ✓'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +84,7 @@ class DuaCard extends StatelessWidget {
             softWrap: true,
           ),
           const SizedBox(height: 12),
-          // Reference + count
+          // Reference + count + actions
           Row(
             children: [
               if (duaa.count > 1)
@@ -85,7 +114,70 @@ class DuaCard extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          // Action buttons: copy + share
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              // Copy
+              _ActionButton(
+                icon: Icons.copy,
+                onPressed: () => _copyToClipboard(context),
+                tooltip: 'نسخ',
+              ),
+              const SizedBox(width: 8),
+              // Share
+              _ActionButton(
+                icon: Icons.share,
+                onPressed: () => _shareDuaa(context),
+                tooltip: 'مشاركة',
+              ),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+  final String tooltip;
+
+  const _ActionButton({
+    required this.icon,
+    required this.onPressed,
+    required this.tooltip,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Material(
+      color: Colors.transparent,
+      child: Tooltip(
+        message: tooltip,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.gold.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.gold.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: 18,
+              color: isDark ? AppColors.goldLight : AppColors.gold,
+            ),
+          ),
+        ),
       ),
     );
   }
