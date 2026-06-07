@@ -67,13 +67,7 @@ Designed as a modern, offline-first adhkar app with a heritage Islamic aesthetic
 
 ## 🖼️ لقطات الشاشة — Screenshots
 
-| الشاشة الرئيسية | أذكار الصباح | الأدعية | الإعدادات |
-|:---:|:---:|:---:|:---:|
-| <img src="screenshots/01_home.png" width="180" alt="Home"> | <img src="screenshots/02_morning_adhkar.png" width="180" alt="Morning Adhkar"> | <img src="screenshots/03_duaa.png" width="180" alt="Duaa"> | <img src="screenshots/04_settings.png" width="180" alt="Settings"> |
-
-<p align="center">
-  <img src="screenshots/collage.png" width="600" alt="App Preview Collage">
-</p>
+> *سيتم إضافة لقطات شاشة قريبًا*
 
 ---
 
