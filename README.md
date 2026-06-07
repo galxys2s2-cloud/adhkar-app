@@ -6,7 +6,8 @@
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.44-%2302569B?logo=flutter&logoColor=white)](https://flutter.dev)
 [![Platform](https://img.shields.io/badge/Platform-Android-brightgreen?logo=android)](https://github.com/galxys2s2-cloud/adhkar-app/releases)
-[![Web](https://img.shields.io/badge/Web-GitHub%20Pages-%23181717?logo=github)](https://galxys2s2-cloud.github.io/adhkar-app/)
+[![Web](https://img.shields.io/badge/🌐_Web-App-%23FF5722?logo=githubpages&logoColor=white)](https://galxys2s2-cloud.github.io/adhkar-app/)
+[![GitHub Pages](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgalxys2s2-cloud.github.io%2Fadhkar-app%2F.last_build_id&query=%24&label=🚀%20Deployed&color=success&logo=github)](https://galxys2s2-cloud.github.io/adhkar-app/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 <br>
@@ -73,9 +74,15 @@ Designed as a modern, offline-first adhkar app with a heritage Islamic aesthetic
 
 ## 🚀 التحميل — Download
 
-### Android APK
+### 🌐 Web Version (لا يحتاج تثبيت)
 
-[<img src="https://img.shields.io/badge/📥_تحميل_آخر_إصدار-v1.0.0-brightgreen?style=for-the-badge" alt="Download">](https://github.com/galxys2s2-cloud/adhkar-app/releases/latest)
+[<img src="https://img.shields.io/badge/🌐_جرب_النسخة_الويب_الآن-FF5722?style=for-the-badge&logo=githubpages&logoColor=white" alt="Web App">](https://galxys2s2-cloud.github.io/adhkar-app/)
+
+> افتح الرابط من أي جهاز — **جوال، تابلت، لابتوب** — بدون تثبيت
+
+### 📱 Android APK
+
+[<img src="https://img.shields.io/badge/📥_تحميل_آخر_إصدار-v2.1-brightgreen?style=for-the-badge" alt="Download">](https://github.com/galxys2s2-cloud/adhkar-app/releases/latest)
 
 | Architecture | الحجم | الرابط |
 |-------------|-------|--------|
