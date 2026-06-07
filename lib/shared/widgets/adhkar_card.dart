@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../data/models/adhkar_model.dart';
@@ -39,6 +41,23 @@ class _AdhkarCardState extends State<AdhkarCard> {
 
   void _toggleExpansion() {
     setState(() => _isExpanded = !_isExpanded);
+  }
+
+  void _shareAdhkar() {
+    final text = 'الذكر: ${widget.adhkar.arabic}\n🕯 تطبيق أذكاري\nhttps://galxys2s2-cloud.github.io/adhkar-app/';
+    Share.share(text, subject: 'أذكاري');
+  }
+
+  void _copyToClipboard() {
+    Clipboard.setData(ClipboardData(text: widget.adhkar.arabic));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('تم النسخ ✓'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override
@@ -152,7 +171,7 @@ class _AdhkarCardState extends State<AdhkarCard> {
             ),
           ],
           const SizedBox(height: 16),
-          // Bottom bar: reference + heart + counter
+          // Bottom bar: reference + heart + copy + share + counter
           Row(
             children: [
               // Reference
@@ -190,6 +209,20 @@ class _AdhkarCardState extends State<AdhkarCard> {
                     iconSize: 22,
                   );
                 },
+              ),
+              const SizedBox(width: 4),
+              // Copy
+              _ActionButton(
+                icon: Icons.copy,
+                onPressed: _copyToClipboard,
+                tooltip: 'نسخ',
+              ),
+              const SizedBox(width: 4),
+              // Share
+              _ActionButton(
+                icon: Icons.share,
+                onPressed: _shareAdhkar,
+                tooltip: 'مشاركة',
               ),
               const SizedBox(width: 8),
               // Counter
@@ -246,6 +279,49 @@ class _AdhkarCardState extends State<AdhkarCard> {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+  final String tooltip;
+
+  const _ActionButton({
+    required this.icon,
+    required this.onPressed,
+    required this.tooltip,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Material(
+      color: Colors.transparent,
+      child: Tooltip(
+        message: tooltip,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.gold.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.gold.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: 18,
+              color: isDark ? AppColors.goldLight : AppColors.gold,
+            ),
+          ),
+        ),
       ),
     );
   }
