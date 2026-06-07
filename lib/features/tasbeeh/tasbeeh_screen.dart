@@ -2,130 +2,122 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:share_plus/share_plus.dart';
-import '../../core/constants/app_constants.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_text_styles.dart';
-import '../../shared/widgets/arabesque_bg.dart';
+import 'package:intl/intl.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../shared/widgets/arabesque_bg.dart';
+import '../data/tasbeeh_repository.dart';
 
-// ---- Tasbeeh state model ----
+// Selected dhikr provider
+final selectedDhikrProvider = StateProvider<String>((ref) => 'سُبْحَانَ اللَّهِ');
 
-class TasbeehState {
-  final int currentPhraseIndex;
-  final List<int> progress;
-  final List<int> targets;
-
-  const TasbeehState({
-    this.currentPhraseIndex = 0,
-    required this.progress,
-    required this.targets,
-  });
-
-  /// Total target sum across all phrases
-  int get totalTarget => targets.fold(0, (a, b) => a + b);
-
-  /// Total completed count across all phrases
-  int get totalCompleted => progress.fold(0, (a, b) => a + b);
-
-  /// Overall fraction (0.0–1.0)
-  double get totalProgress =>
-      totalTarget > 0 ? totalCompleted / totalTarget : 0.0;
-
-  /// Whether EVERY phrase has reached its target
-  bool get isComplete => totalCompleted >= totalTarget;
-
-  /// The current phrase's target
-  int get currentTarget => currentPhraseIndex < targets.length
-      ? targets[currentPhraseIndex]
-      : 1;
-
-  /// The current phrase's progress value
-  int get currentProgress => currentPhraseIndex < progress.length
-      ? progress[currentPhraseIndex]
-      : 0;
-
-  /// Fraction for the current phrase circle (0.0–1.0)
-  double get currentFraction =>
-      currentTarget > 0 ? currentProgress / currentTarget : 0.0;
-
-  /// Whether the current phrase has reached its own target
-  bool get currentComplete => currentProgress >= currentTarget;
-
-  /// Whether a specific phrase index is completed
-  bool isPhraseComplete(int index) =>
-      index < progress.length && index < targets.length
-          ? progress[index] >= targets[index]
-          : false;
-}
-
-// ---- Tasbeeh notifier ----
-
-final tasbeehCounterProvider =
-    StateNotifierProvider<TasbeehNotifier, TasbeehState>((ref) {
-  return TasbeehNotifier();
+// Tasbeeh state provider
+final tasbeehCounterProvider = StateNotifierProvider<TasbeehNotifier, int>((ref) {
+  return TasbeehNotifier(ref);
 });
 
-class TasbeehNotifier extends StateNotifier<TasbeehState> {
-  static const List<int> defaultTargets = [33, 33, 33, 1];
+class TasbeehNotifier extends StateNotifier<int> {
+  final Ref _ref;
 
-  TasbeehNotifier()
-      : super(TasbeehState(
-          progress: List.filled(defaultTargets.length, 0),
-          targets: defaultTargets,
-        ));
-
-  void increment() {
-    if (state.isComplete) return; // all done — no-op
-
-    final newProgress = [...state.progress];
-    int newIndex = state.currentPhraseIndex;
-
-    // Bump current phrase
-    if (newProgress[newIndex] < state.targets[newIndex]) {
-      newProgress[newIndex]++;
-      HapticFeedback.lightImpact();
-    }
-
-    // Auto-advance: if current phrase is now complete, move to next
-    if (newProgress[newIndex] >= state.targets[newIndex]) {
-      // Find the next incomplete phrase
-      int next = newIndex + 1;
-      while (next < state.targets.length && newProgress[next] >= state.targets[next]) {
-        next++;
-      }
-      if (next < state.targets.length) {
-        newIndex = next;
-      }
-      // If no next incomplete phrase, stay on last index — state will be isComplete
-    }
-
-    state = TasbeehState(
-      currentPhraseIndex: newIndex,
-      progress: newProgress,
-      targets: state.targets,
-    );
+  TasbeehNotifier(this._ref) : super(0) {
+    _loadDailyAccumulated();
   }
 
-  void reset() {
-    state = TasbeehState(
-      currentPhraseIndex: 0,
-      progress: List.filled(state.targets.length, 0),
-      targets: state.targets,
+  Future<void> _loadDailyAccumulated() async {
+    // Check midnight reset
+    final didReset = await tasbeehRepository.checkAndResetDaily();
+    if (didReset) {
+      state = 0;
+      return;
+    }
+
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final acc = await tasbeehRepository.getTotalForDate(today);
+    // If there is history for today, start from zero (history is already saved)
+    // But if there is only accumulated, resume it.
+    // For simplicity: we keep accumulated in a separate key that gets cleared on saveSession.
+    // Here we just show current session count as state.
+  }
+
+  void increment() {
+    if (state < AppConstants.tasbeehTarget) {
+      state++;
+      HapticFeedback.lightImpact();
+      _persistAccumulated();
+    }
+  }
+
+  void reset() => state = 0;
+
+  void setCount(int count) => state = count;
+
+  Future<void> _persistAccumulated() async {
+    final dhikr = _ref.read(selectedDhikrProvider);
+    await tasbeehRepository.accumulateDaily(count: state, dhikr: dhikr);
+  }
+
+  /// Save current session to history and clear accumulated
+  Future<void> saveSession() async {
+    if (state == 0) return;
+    final dhikr = _ref.read(selectedDhikrProvider);
+    await tasbeehRepository.saveSession(count: state, dhikr: dhikr);
+    await tasbeehRepository.clearDailyAccumulated(
+      DateFormat('yyyy-MM-dd').format(DateTime.now()),
     );
+    state = 0;
   }
 }
 
-// ---- Screen UI ----
-
-class TasbeehScreen extends ConsumerWidget {
+class TasbeehScreen extends ConsumerStatefulWidget {
   const TasbeehScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final tasbeeh = ref.watch(tasbeehCounterProvider);
-    final notifier = ref.read(tasbeehCounterProvider.notifier);
+  ConsumerState<TasbeehScreen> createState() => _TasbeehScreenState();
+}
 
-    // Phrase definitions (tied to the state targets)
+class _TasbeehScreenState extends ConsumerState<TasbeehScreen>
+    with WidgetsBindingObserver {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _checkDailyReset();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    // Save session when leaving screen
+    ref.read(tasbeehCounterProvider.notifier).saveSession();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      // Save when app goes to background
+      ref.read(tasbeehCounterProvider.notifier).saveSession();
+    }
+  }
+
+  Future<void> _checkDailyReset() async {
+    final didReset = await tasbeehRepository.checkAndResetDaily();
+    if (didReset && mounted) {
+      ref.read(tasbeehCounterProvider.notifier).reset();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final counter = ref.watch(tasbeehCounterProvider);
+    final notifier = ref.read(tasbeehCounterProvider.notifier);
+    final selectedDhikr = ref.watch(selectedDhikrProvider);
+    final progress = counter / AppConstants.tasbeehTarget;
+    final isComplete = counter >= AppConstants.tasbeehTarget;
+
+    // Tasbeeh phrases
     final phrases = [
       {'text': 'سُبْحَانَ اللَّهِ', 'target': 33},
       {'text': 'الْحَمْدُ لِلَّهِ', 'target': 33},
@@ -138,11 +130,23 @@ class TasbeehScreen extends ConsumerWidget {
         title: const Text('التسبيح'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            notifier.saveSession();
+            context.pop();
+          },
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.insights),
+            tooltip: 'إحصائيات',
+            onPressed: () {
+              notifier.saveSession();
+              context.push(AppConstants.routeTasbeehStats);
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: 'تصفير',
             onPressed: () => notifier.reset(),
           ),
         ],
@@ -155,7 +159,23 @@ class TasbeehScreen extends ConsumerWidget {
             child: Column(
               children: [
                 const SizedBox(height: 20),
-                // Circular counter display
+                // Selected dhikr chip
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.gold.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppColors.gold.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Text(
+                    selectedDhikr,
+                    style: AppTextStyles.goldLabel.copyWith(fontSize: 16),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Counter display
                 GestureDetector(
                   onTap: () => notifier.increment(),
                   onLongPress: () => notifier.reset(),
@@ -185,14 +205,14 @@ class TasbeehScreen extends ConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '${tasbeeh.currentProgress}',
+                            '$counter',
                             style: AppTextStyles.counterNumber.copyWith(
                               color: AppColors.ivory,
                               fontSize: 72,
                             ),
                           ),
                           Text(
-                            'من ${tasbeeh.currentTarget}',
+                            'من ${AppConstants.tasbeehTarget}',
                             style: AppTextStyles.goldLabel.copyWith(
                               color: AppColors.ivory.withValues(alpha: 0.8),
                             ),
@@ -211,11 +231,11 @@ class TasbeehScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                // Total progress bar
+                // Progress bar
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: LinearProgressIndicator(
-                    value: tasbeeh.totalProgress,
+                    value: progress,
                     minHeight: 6,
                     backgroundColor: AppColors.navyMedium,
                     valueColor: const AlwaysStoppedAnimation<Color>(
@@ -225,23 +245,62 @@ class TasbeehScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  tasbeeh.isComplete ? '🔵 أتممت التسبيح!' : 'التقدم',
+                  isComplete ? '🔵 أتممت التسبيح!' : 'التقدم',
                   style: AppTextStyles.bodyMedium,
                 ),
                 const SizedBox(height: 24),
-                // Phrase rows
+                // Save button (visible when > 0)
+                if (counter > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          await notifier.saveSession();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('✅ تم حفظ الجلسة'),
+                                duration: Duration(seconds: 2),
+                                backgroundColor: AppColors.teal,
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.save, size: 18),
+                        label: const Text('حفظ الجلسة'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.gold.withValues(alpha: 0.15),
+                          foregroundColor: AppColors.gold,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: AppColors.gold.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                  ),
+                // Phrase buttons
                 Expanded(
                   child: ListView.separated(
                     itemCount: phrases.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final phrase = phrases[index];
+                      final isSelected = selectedDhikr == phrase['text'];
                       return _PhraseRow(
                         text: phrase['text'] as String,
                         target: phrase['target'] as int,
-                        progress: tasbeeh.progress[index],
-                        isActive: index == tasbeeh.currentPhraseIndex,
-                        isCompleted: tasbeeh.isPhraseComplete(index),
+                        isSelected: isSelected,
+                        onTap: () {
+                          ref.read(selectedDhikrProvider.notifier).state =
+                              phrase['text'] as String;
+                        },
                       );
                     },
                   ),
@@ -255,146 +314,70 @@ class TasbeehScreen extends ConsumerWidget {
   }
 }
 
-// ---- Phrase row widget ----
-
 class _PhraseRow extends StatelessWidget {
   final String text;
   final int target;
-  final int progress;
-  final bool isActive;
-  final bool isCompleted;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   const _PhraseRow({
     required this.text,
     required this.target,
-    required this.progress,
-    required this.isActive,
-    required this.isCompleted,
+    this.isSelected = false,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    Color borderColor;
-    if (isCompleted) {
-      borderColor = AppColors.tealLight;
-    } else if (isActive) {
-      borderColor = AppColors.gold;
-    } else {
-      borderColor = AppColors.gold.withValues(alpha: 0.15);
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: borderColor,
-          width: isActive || isCompleted ? 2.0 : 1.0,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.gold.withValues(alpha: 0.15)
+              : (isDark ? AppColors.darkSurface : AppColors.lightSurface),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.gold.withValues(alpha: 0.5)
+                : AppColors.gold.withValues(alpha: 0.15),
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          // Active indicator
-          if (isActive && !isCompleted)
-            Container(
-              width: 8,
-              height: 8,
-              margin: const EdgeInsets.only(left: 8),
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.gold,
-              ),
-            ),
-          if (isCompleted)
-            const Padding(
-              padding: EdgeInsets.only(left: 8),
+        child: Row(
+          children: [
+            Expanded(
               child: Text(
-                '✅',
-                style: TextStyle(fontSize: 14),
+                text,
+                style: AppTextStyles.headingMedium.copyWith(
+                  fontSize: 18,
+                  color: isDark ? AppColors.ivory : AppColors.navyDeep,
+                ),
               ),
             ),
-          // Phrase text
-          Expanded(
-            child: Text(
-              text,
-              style: AppTextStyles.headingMedium.copyWith(
-                fontSize: 18,
-                color: isCompleted
-                    ? AppColors.tealLight
-                    : isActive
-                        ? AppColors.gold
-                        : (isDark ? AppColors.ivory : AppColors.navyDeep),
-                fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppColors.gold.withValues(alpha: 0.25)
+                    : AppColors.gold.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '${target}x',
+                style: AppTextStyles.goldLabel.copyWith(
+                  color: isSelected ? AppColors.goldLight : AppColors.gold,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          // Progress badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: isCompleted
-                  ? AppColors.tealLight.withValues(alpha: 0.2)
-                  : AppColors.gold.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              isCompleted ? '✅ $target' : '$progress/$target',
-              style: AppTextStyles.goldLabel.copyWith(
-                color: isCompleted ? AppColors.tealLight : AppColors.gold,
+            if (isSelected)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Icon(Icons.check_circle, color: AppColors.gold, size: 20),
               ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          // Share button
-          _ShareTasbeehButton(text: text),
-        ],
-      ),
-    );
-  }
-}
-
-// ---- Share button for tasbeeh phrases ----
-
-class _ShareTasbeehButton extends StatelessWidget {
-  final String text;
-
-  const _ShareTasbeehButton({required this.text});
-
-  void _share(BuildContext context) {
-    final shareText = '$text\n\n${AppConstants.appLink}';
-    Share.share(shareText, subject: AppConstants.appName);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Material(
-      color: Colors.transparent,
-      child: Tooltip(
-        message: 'مشاركة',
-        child: InkWell(
-          onTap: () => _share(context),
-          borderRadius: BorderRadius.circular(10),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.gold.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: AppColors.gold.withValues(alpha: 0.2),
-              ),
-            ),
-            child: Icon(
-              Icons.share,
-              size: 16,
-              color: isDark ? AppColors.goldLight : AppColors.gold,
-            ),
-          ),
+          ],
         ),
       ),
     );

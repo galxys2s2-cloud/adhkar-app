@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
-import '../../core/constants/app_constants.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../data/models/adhkar_model.dart';
+import '../../features/favorites/providers/favorites_provider.dart';
 
-class DuaCard extends StatelessWidget {
+class DuaCard extends StatefulWidget {
   final DuaaModel duaa;
 
   const DuaCard({
@@ -14,35 +13,23 @@ class DuaCard extends StatelessWidget {
     required this.duaa,
   });
 
-  String get _shareText {
-    final buffer = StringBuffer();
-    buffer.writeln(duaa.arabic);
-    if (duaa.translation != null && duaa.translation!.isNotEmpty) {
-      buffer.writeln();
-      buffer.writeln(duaa.translation);
-    }
-    buffer.writeln();
-    buffer.writeln(AppConstants.appLink);
-    return buffer.toString();
-  }
+  @override
+  State<DuaCard> createState() => _DuaCardState();
+}
 
-  void _shareDuaa(BuildContext context) {
-    Share.share(_shareText, subject: AppConstants.appName);
-  }
+class _DuaCardState extends State<DuaCard> {
+  bool _isExpanded = false;
 
-  void _copyToClipboard(BuildContext context) {
-    Clipboard.setData(ClipboardData(text: duaa.arabic));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('تم النسخ ✓'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+  void _toggleExpansion() {
+    setState(() => _isExpanded = !_isExpanded);
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isFav = ref.watch(
+      favoritesProvider.select((s) => s.isDuaaFavorite(widget.duaa.id)),
+    );
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -57,37 +44,123 @@ class DuaCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Before/after label
-          if (duaa.beforeAfter != null)
-            Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.teal.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                duaa.beforeAfter == 'before' ? 'قبل' : 'بعد',
-                style: AppTextStyles.goldLabel.copyWith(
-                  fontSize: 12,
-                  color: AppColors.tealLight,
+          // Before/after label + heart
+          Row(
+            children: [
+              if (widget.duaa.beforeAfter != null)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.teal.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    widget.duaa.beforeAfter == 'before' ? 'قبل' : 'بعد',
+                    style: AppTextStyles.goldLabel.copyWith(
+                      fontSize: 12,
+                      color: AppColors.tealLight,
+                    ),
+                  ),
+                )
+              else
+                const Spacer(),
+              const Spacer(),
+              IconButton(
+                icon: Icon(
+                  isFav ? Icons.favorite : Icons.favorite_border,
                 ),
+                color: isFav ? Colors.red : AppColors.gold,
+                onPressed: () {
+                  ref.read(favoritesProvider.notifier).toggleDuaa(widget.duaa.id);
+                },
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                iconSize: 22,
               ),
-            ),
+            ],
+          ),
           // Text
           Text(
-            duaa.arabic,
+            widget.duaa.arabic,
             style: isDark
                 ? AppTextStyles.adhkarTextDark
                 : AppTextStyles.adhkarText,
             textAlign: TextAlign.center,
             softWrap: true,
           ),
+          // Translation and transliteration (collapsible)
+          if (widget.duaa.translation != null || widget.duaa.transliteration != null) ...[
+            const SizedBox(height: 12),
+            InkWell(
+              onTap: _toggleExpansion,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                      size: 20,
+                      color: AppColors.gold,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _isExpanded ? 'Hide Translation' : 'Show Translation',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 12,
+                        color: AppColors.gold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            AnimatedCrossFade(
+              firstChild: const SizedBox.shrink(),
+              secondChild: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (widget.duaa.transliteration != null) ...[
+                    Text(
+                      widget.duaa.transliteration!,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 14,
+                        fontStyle: FontStyle.italic,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  if (widget.duaa.translation != null) ...[
+                    Text(
+                      widget.duaa.translation!,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 13,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ],
+              ),
+              crossFadeState: _isExpanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 200),
+            ),
+          ],
           const SizedBox(height: 12),
-          // Reference + count + actions
+          // Reference + count
           Row(
             children: [
-              if (duaa.count > 1)
+              if (widget.duaa.count > 1)
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
@@ -98,13 +171,13 @@ class DuaCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '${duaa.count} مرات',
+                    '${widget.duaa.count} مرات',
                     style: AppTextStyles.goldLabel.copyWith(fontSize: 12),
                   ),
                 ),
               const Spacer(),
               Text(
-                duaa.reference,
+                widget.duaa.reference,
                 style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 12,
                   color: isDark
@@ -114,70 +187,7 @@ class DuaCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          // Action buttons: copy + share
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              // Copy
-              _ActionButton(
-                icon: Icons.copy,
-                onPressed: () => _copyToClipboard(context),
-                tooltip: 'نسخ',
-              ),
-              const SizedBox(width: 8),
-              // Share
-              _ActionButton(
-                icon: Icons.share,
-                onPressed: () => _shareDuaa(context),
-                tooltip: 'مشاركة',
-              ),
-            ],
-          ),
         ],
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onPressed;
-  final String tooltip;
-
-  const _ActionButton({
-    required this.icon,
-    required this.onPressed,
-    required this.tooltip,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Material(
-      color: Colors.transparent,
-      child: Tooltip(
-        message: tooltip,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.gold.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.gold.withValues(alpha: 0.2),
-              ),
-            ),
-            child: Icon(
-              icon,
-              size: 18,
-              color: isDark ? AppColors.goldLight : AppColors.gold,
-            ),
-          ),
-        ),
       ),
     );
   }

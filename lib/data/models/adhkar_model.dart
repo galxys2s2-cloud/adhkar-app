@@ -3,6 +3,7 @@ class AdhkarModel {
   final String category;
   final String arabic;
   final String? translation;
+  final String? transliteration;
   final String reference;
   final int count;
   final bool hasBismillah;
@@ -12,6 +13,7 @@ class AdhkarModel {
     required this.category,
     required this.arabic,
     this.translation,
+    this.transliteration,
     required this.reference,
     this.count = 1,
     this.hasBismillah = false,
@@ -23,6 +25,7 @@ class AdhkarModel {
       category: json['category'] as String,
       arabic: json['arabic'] as String,
       translation: json['translation'] as String?,
+      transliteration: json['transliteration'] as String?,
       reference: json['reference'] as String,
       count: (json['count'] as int?) ?? 1,
       hasBismillah: (json['has_bismillah'] as bool?) ?? false,
@@ -35,6 +38,7 @@ class AdhkarModel {
       'category': category,
       'arabic': arabic,
       'translation': translation,
+      'transliteration': transliteration,
       'reference': reference,
       'count': count,
       'has_bismillah': hasBismillah,
@@ -70,6 +74,7 @@ class DuaaModel {
   final String category;
   final String arabic;
   final String? translation;
+  final String? transliteration;
   final String reference;
   final int count;
   final String? beforeAfter;
@@ -79,6 +84,7 @@ class DuaaModel {
     required this.category,
     required this.arabic,
     this.translation,
+    this.transliteration,
     required this.reference,
     this.count = 1,
     this.beforeAfter,
@@ -90,6 +96,7 @@ class DuaaModel {
       category: json['category'] as String,
       arabic: json['arabic'] as String,
       translation: json['translation'] as String?,
+      transliteration: json['transliteration'] as String?,
       reference: json['reference'] as String,
       count: (json['count'] as int?) ?? 1,
       beforeAfter: json['before_after'] as String?,
@@ -102,6 +109,7 @@ class DuaaModel {
       'category': category,
       'arabic': arabic,
       'translation': translation,
+      'transliteration': transliteration,
       'reference': reference,
       'count': count,
       'before_after': beforeAfter,

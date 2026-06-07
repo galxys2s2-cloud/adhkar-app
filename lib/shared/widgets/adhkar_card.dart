@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
-import '../../core/constants/app_constants.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../data/models/adhkar_model.dart';
+import '../../features/favorites/providers/favorites_provider.dart';
 
 class AdhkarCard extends StatefulWidget {
   final AdhkarModel adhkar;
@@ -20,6 +19,7 @@ class AdhkarCard extends StatefulWidget {
 
 class _AdhkarCardState extends State<AdhkarCard> {
   int _remainingCount = 0;
+  bool _isExpanded = false;
 
   @override
   void initState() {
@@ -37,32 +37,8 @@ class _AdhkarCardState extends State<AdhkarCard> {
     setState(() => _remainingCount = widget.adhkar.count);
   }
 
-  String get _shareText {
-    final buffer = StringBuffer();
-    buffer.writeln(widget.adhkar.arabic);
-    if (widget.adhkar.translation != null && widget.adhkar.translation!.isNotEmpty) {
-      buffer.writeln();
-      buffer.writeln(widget.adhkar.translation);
-    }
-    buffer.writeln();
-    buffer.writeln(AppConstants.appLink);
-    return buffer.toString();
-  }
-
-  void _shareAdhkar() {
-    Share.share(_shareText, subject: AppConstants.appName);
-  }
-
-  void _copyToClipboard() {
-    Clipboard.setData(ClipboardData(text: widget.adhkar.arabic));
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم النسخ ✓'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
+  void _toggleExpansion() {
+    setState(() => _isExpanded = !_isExpanded);
   }
 
   @override
@@ -109,8 +85,74 @@ class _AdhkarCardState extends State<AdhkarCard> {
             textAlign: TextAlign.center,
             softWrap: true,
           ),
+          // Translation and transliteration (collapsible)
+          if (widget.adhkar.translation != null || widget.adhkar.transliteration != null) ...[
+            const SizedBox(height: 12),
+            InkWell(
+              onTap: _toggleExpansion,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                      size: 20,
+                      color: AppColors.gold,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _isExpanded ? 'Hide Translation' : 'Show Translation',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 12,
+                        color: AppColors.gold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            AnimatedCrossFade(
+              firstChild: const SizedBox.shrink(),
+              secondChild: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (widget.adhkar.transliteration != null) ...[
+                    Text(
+                      widget.adhkar.transliteration!,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 14,
+                        fontStyle: FontStyle.italic,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  if (widget.adhkar.translation != null) ...[
+                    Text(
+                      widget.adhkar.translation!,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 13,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ],
+              ),
+              crossFadeState: _isExpanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 200),
+            ),
+          ],
           const SizedBox(height: 16),
-          // Bottom bar: reference + counter
+          // Bottom bar: reference + heart + counter
           Row(
             children: [
               // Reference
@@ -125,6 +167,31 @@ class _AdhkarCardState extends State<AdhkarCard> {
                   ),
                 ),
               ),
+              // Favorite heart
+              Consumer(
+                builder: (context, ref, child) {
+                  final isFav = ref.watch(
+                    favoritesProvider.select(
+                      (s) => s.isAdhkarFavorite(widget.adhkar.id),
+                    ),
+                  );
+                  return IconButton(
+                    icon: Icon(
+                      isFav ? Icons.favorite : Icons.favorite_border,
+                    ),
+                    color: isFav ? Colors.red : AppColors.gold,
+                    onPressed: () {
+                      ref
+                          .read(favoritesProvider.notifier)
+                          .toggleAdhkar(widget.adhkar.id);
+                    },
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    iconSize: 22,
+                  );
+                },
+              ),
+              const SizedBox(width: 8),
               // Counter
               GestureDetector(
                 onTap: _increment,
@@ -178,70 +245,7 @@ class _AdhkarCardState extends State<AdhkarCard> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          // Action buttons: copy + share
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              // Copy
-              _ActionButton(
-                icon: Icons.copy,
-                onPressed: _copyToClipboard,
-                tooltip: 'نسخ',
-              ),
-              const SizedBox(width: 8),
-              // Share
-              _ActionButton(
-                icon: Icons.share,
-                onPressed: _shareAdhkar,
-                tooltip: 'مشاركة',
-              ),
-            ],
-          ),
         ],
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onPressed;
-  final String tooltip;
-
-  const _ActionButton({
-    required this.icon,
-    required this.onPressed,
-    required this.tooltip,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Material(
-      color: Colors.transparent,
-      child: Tooltip(
-        message: tooltip,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.gold.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.gold.withValues(alpha: 0.2),
-              ),
-            ),
-            child: Icon(
-              icon,
-              size: 18,
-              color: isDark ? AppColors.goldLight : AppColors.gold,
-            ),
-          ),
-        ),
       ),
     );
   }
