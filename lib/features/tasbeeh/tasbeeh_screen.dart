@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../shared/widgets/arabesque_bg.dart';
+import '../../shared/widgets/staggered_animation.dart';
 
 // ---- Tasbeeh state model ----
 
@@ -158,50 +159,34 @@ class TasbeehScreen extends ConsumerWidget {
               children: [
                 const SizedBox(height: 20),
                 // Circular counter display
-                GestureDetector(
+                _PulseCounter(
                   onTap: () => notifier.increment(),
                   onLongPress: () => notifier.reset(),
-                  child: Container(
-                    width: 220,
-                    height: 220,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const SweepGradient(
-                        colors: [
-                          AppColors.navyDeep,
-                          AppColors.gold,
-                          AppColors.teal,
-                          AppColors.navyDeep,
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.gold.withValues(alpha: 0.3),
-                          blurRadius: 30,
-                          spreadRadius: 5,
+                  gradient: const SweepGradient(
+                    colors: [
+                      AppColors.navyDeep,
+                      AppColors.gold,
+                      AppColors.teal,
+                      AppColors.navyDeep,
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${tasbeeh.currentProgress}',
+                        style: AppTextStyles.counterNumber.copyWith(
+                          color: AppColors.ivory,
+                          fontSize: 72,
                         ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '${tasbeeh.currentProgress}',
-                            style: AppTextStyles.counterNumber.copyWith(
-                              color: AppColors.ivory,
-                              fontSize: 72,
-                            ),
-                          ),
-                          Text(
-                            'من ${tasbeeh.currentTarget}',
-                            style: AppTextStyles.goldLabel.copyWith(
-                              color: AppColors.ivory.withValues(alpha: 0.8),
-                            ),
-                          ),
-                        ],
                       ),
-                    ),
+                      Text(
+                        'من ${tasbeeh.currentTarget}',
+                        style: AppTextStyles.goldLabel.copyWith(
+                          color: AppColors.ivory.withValues(alpha: 0.8),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -238,12 +223,15 @@ class TasbeehScreen extends ConsumerWidget {
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final phrase = phrases[index];
-                      return _PhraseRow(
-                        text: phrase['text'] as String,
-                        target: phrase['target'] as int,
-                        progress: tasbeeh.progress[index],
-                        isActive: index == tasbeeh.currentPhraseIndex,
-                        isCompleted: tasbeeh.isPhraseComplete(index),
+                      return StaggeredAnimation(
+                        index: index,
+                        child: _PhraseRow(
+                          text: phrase['text'] as String,
+                          target: phrase['target'] as int,
+                          progress: tasbeeh.progress[index],
+                          isActive: index == tasbeeh.currentPhraseIndex,
+                          isCompleted: tasbeeh.isPhraseComplete(index),
+                        ),
                       );
                     },
                   ),
@@ -253,6 +241,103 @@ class TasbeehScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+// ---- Pulse counter widget ----
+
+class _PulseCounter extends StatefulWidget {
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
+  final Gradient gradient;
+  final Widget child;
+
+  const _PulseCounter({
+    required this.onTap,
+    required this.onLongPress,
+    required this.gradient,
+    required this.child,
+  });
+
+  @override
+  State<_PulseCounter> createState() => _PulseCounterState();
+}
+
+class _PulseCounterState extends State<_PulseCounter>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
+  late final Animation<double> _glowAlphaAnimation;
+  late final Animation<double> _blurAnimation;
+  late final Animation<double> _spreadAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.05), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 1.05, end: 1.0), weight: 1),
+    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _glowAlphaAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.3, end: 0.6), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 0.6, end: 0.3), weight: 1),
+    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _blurAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 30.0, end: 40.0), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 40.0, end: 30.0), weight: 1),
+    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _spreadAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 5.0, end: 10.0), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 10.0, end: 5.0), weight: 1),
+    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    widget.onTap();
+    _controller.forward(from: 0);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _scaleAnimation.value,
+          child: GestureDetector(
+            onTap: _handleTap,
+            onLongPress: widget.onLongPress,
+            child: Container(
+              width: 220,
+              height: 220,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: widget.gradient,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.gold.withValues(alpha: _glowAlphaAnimation.value),
+                    blurRadius: _blurAnimation.value,
+                    spreadRadius: _spreadAnimation.value,
+                  ),
+                ],
+              ),
+              child: child,
+            ),
+          ),
+        );
+      },
+      child: Center(child: widget.child),
     );
   }
 }

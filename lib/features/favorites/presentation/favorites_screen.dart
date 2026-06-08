@@ -8,6 +8,7 @@ import '../../../data/repositories/adhkar_repository.dart';
 import '../../../shared/widgets/adhkar_card.dart';
 import '../../../shared/widgets/dua_card.dart';
 import '../../../shared/widgets/arabesque_bg.dart';
+import '../../../shared/widgets/staggered_animation.dart';
 import '../providers/favorites_provider.dart';
 
 class FavoritesScreen extends ConsumerWidget {
@@ -64,13 +65,25 @@ class FavoritesScreen extends ConsumerWidget {
                   if (favAdhkar.isNotEmpty) ...[
                     _buildSectionHeader(context, '🌅 الأذكار المفضلة'),
                     const SizedBox(height: 12),
-                    ...favAdhkar.map((a) => AdhkarCard(adhkar: a)),
+                    ...favAdhkar.asMap().entries.map((e) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: StaggeredAnimation(
+                        index: e.key,
+                        child: AdhkarCard(adhkar: e.value),
+                      ),
+                    )),
                     const SizedBox(height: 24),
                   ],
                   if (favDuaa.isNotEmpty) ...[
                     _buildSectionHeader(context, '🤲 الأدعية المفضلة'),
                     const SizedBox(height: 12),
-                    ...favDuaa.map((d) => DuaCard(duaa: d)),
+                    ...favDuaa.asMap().entries.map((e) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: StaggeredAnimation(
+                        index: favAdhkar.length + e.key,
+                        child: DuaCard(duaa: e.value),
+                      ),
+                    )),
                   ],
                 ],
               );

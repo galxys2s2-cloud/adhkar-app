@@ -6,6 +6,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/constants/app_constants.dart';
 import '../../shared/utils/notification_service.dart';
 import '../../shared/widgets/arabesque_bg.dart';
+import '../../shared/widgets/staggered_animation.dart';
 
 // Theme mode provider
 final themeModeProvider = StateProvider<ThemeMode>((ref) {
@@ -44,117 +45,148 @@ class SettingsScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(20),
             children: [
               // Theme section
-              _buildSectionHeader('المظهر'),
+              StaggeredAnimation(
+                index: 0,
+                child: _buildSectionHeader('المظهر'),
+              ),
               const SizedBox(height: 12),
-              _buildSettingCard(
-                context,
-                icon: isDark ? Icons.dark_mode : Icons.light_mode,
-                title: 'الوضع الليلي',
-                subtitle: 'تغيير مظهر التطبيق',
-                trailing: Switch.adaptive(
-                  value: isDark,
-                  activeTrackColor: AppColors.gold,
-                  onChanged: (value) {
-                    ref.read(themeModeProvider.notifier).state =
-                        value ? ThemeMode.dark : ThemeMode.light;
-                  },
+              StaggeredAnimation(
+                index: 1,
+                child: _buildSettingCard(
+                  context,
+                  icon: isDark ? Icons.dark_mode : Icons.light_mode,
+                  title: 'الوضع الليلي',
+                  subtitle: 'تغيير مظهر التطبيق',
+                  trailing: Switch.adaptive(
+                    value: isDark,
+                    activeTrackColor: AppColors.gold,
+                    onChanged: (value) {
+                      ref.read(themeModeProvider.notifier).state =
+                          value ? ThemeMode.dark : ThemeMode.light;
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
 
               // Notifications section
-              _buildSectionHeader('الإشعارات'),
+              StaggeredAnimation(
+                index: 2,
+                child: _buildSectionHeader('الإشعارات'),
+              ),
               const SizedBox(height: 12),
-              _buildSettingCard(
-                context,
-                icon: Icons.notifications_active,
-                title: 'أذكار الصباح',
-                subtitle: 'تنبيه يومي بعد الفجر (٦:٠٠ صباحاً)',
-                trailing: Switch.adaptive(
-                  value: morningEnabled,
-                  activeTrackColor: AppColors.gold,
-                  onChanged: (value) async {
-                    ref.read(morningAdhkarEnabledProvider.notifier).state = value;
-                    if (value) {
-                      await NotificationService.scheduleMorningAdhkar();
-                    } else {
-                      await NotificationService.cancelMorningAdhkar();
-                    }
-                  },
+              StaggeredAnimation(
+                index: 3,
+                child: _buildSettingCard(
+                  context,
+                  icon: Icons.notifications_active,
+                  title: 'أذكار الصباح',
+                  subtitle: 'تنبيه يومي بعد الفجر (٦:٠٠ صباحاً)',
+                  trailing: Switch.adaptive(
+                    value: morningEnabled,
+                    activeTrackColor: AppColors.gold,
+                    onChanged: (value) async {
+                      ref.read(morningAdhkarEnabledProvider.notifier).state = value;
+                      if (value) {
+                        await NotificationService.scheduleMorningAdhkar();
+                      } else {
+                        await NotificationService.cancelMorningAdhkar();
+                      }
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
-              _buildSettingCard(
-                context,
-                icon: Icons.notifications_active,
-                title: 'أذكار المساء',
-                subtitle: 'تنبيه يومي قبل المغرب (٥:٠٠ مساء)',
-                trailing: Switch.adaptive(
-                  value: eveningEnabled,
-                  activeTrackColor: AppColors.gold,
-                  onChanged: (value) async {
-                    ref.read(eveningAdhkarEnabledProvider.notifier).state = value;
-                    if (value) {
-                      await NotificationService.scheduleEveningAdhkar();
-                    } else {
-                      await NotificationService.cancelEveningAdhkar();
-                    }
-                  },
+              StaggeredAnimation(
+                index: 4,
+                child: _buildSettingCard(
+                  context,
+                  icon: Icons.notifications_active,
+                  title: 'أذكار المساء',
+                  subtitle: 'تنبيه يومي قبل المغرب (٥:٠٠ مساء)',
+                  trailing: Switch.adaptive(
+                    value: eveningEnabled,
+                    activeTrackColor: AppColors.gold,
+                    onChanged: (value) async {
+                      ref.read(eveningAdhkarEnabledProvider.notifier).state = value;
+                      if (value) {
+                        await NotificationService.scheduleEveningAdhkar();
+                      } else {
+                        await NotificationService.cancelEveningAdhkar();
+                      }
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
-              _buildSettingCard(
-                context,
-                icon: Icons.notifications,
-                title: 'تذكير عشوائي (سبحلي)',
-                subtitle: 'تذكير للتسبيح خلال اليوم',
-                trailing: Switch.adaptive(
-                  value: tasbeehEnabled,
-                  activeTrackColor: AppColors.gold,
-                  onChanged: (value) async {
-                    ref.read(randomTasbeehEnabledProvider.notifier).state = value;
-                    if (value) {
-                      await NotificationService.scheduleRandomTasbeeh();
-                    } else {
-                      await NotificationService.cancelRandomTasbeeh();
-                    }
-                  },
+              StaggeredAnimation(
+                index: 5,
+                child: _buildSettingCard(
+                  context,
+                  icon: Icons.notifications,
+                  title: 'تذكير عشوائي (سبحلي)',
+                  subtitle: 'تذكير للتسبيح خلال اليوم',
+                  trailing: Switch.adaptive(
+                    value: tasbeehEnabled,
+                    activeTrackColor: AppColors.gold,
+                    onChanged: (value) async {
+                      ref.read(randomTasbeehEnabledProvider.notifier).state = value;
+                      if (value) {
+                        await NotificationService.scheduleRandomTasbeeh();
+                      } else {
+                        await NotificationService.cancelRandomTasbeeh();
+                      }
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
 
               // About section
-              _buildSectionHeader('حول التطبيق'),
+              StaggeredAnimation(
+                index: 6,
+                child: _buildSectionHeader('حول التطبيق'),
+              ),
               const SizedBox(height: 12),
-              _buildSettingCard(
-                context,
-                icon: Icons.info_outline,
-                title: AppConstants.appName,
-                subtitle: 'الإصدار ${AppConstants.appVersion}',
-                trailing: const Text(
-                  '🕌',
-                  style: TextStyle(fontSize: 24),
+              StaggeredAnimation(
+                index: 7,
+                child: _buildSettingCard(
+                  context,
+                  icon: Icons.info_outline,
+                  title: AppConstants.appName,
+                  subtitle: 'الإصدار ${AppConstants.appVersion}',
+                  trailing: const Text(
+                    '🕌',
+                    style: TextStyle(fontSize: 24),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
 
               // Footer
-              Center(
-                child: Text(
-                  '﷽',
-                  style: AppTextStyles.displayMedium.copyWith(
-                    fontSize: 24,
-                    color: AppColors.gold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Center(
-                child: Text(
-                  'بسم الله الرحمن الرحيم',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 12,
-                  ),
+              StaggeredAnimation(
+                index: 8,
+                child: Column(
+                  children: [
+                    Center(
+                      child: Text(
+                        '﷽',
+                        style: AppTextStyles.displayMedium.copyWith(
+                          fontSize: 24,
+                          color: AppColors.gold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Center(
+                      child: Text(
+                        'بسم الله الرحمن الرحيم',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 40),

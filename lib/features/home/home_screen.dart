@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/constants/app_constants.dart';
 import '../../shared/widgets/arabesque_bg.dart';
+import '../../shared/widgets/staggered_animation.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -60,64 +61,82 @@ class HomeScreen extends ConsumerWidget {
                       crossAxisSpacing: 16,
                       childAspectRatio: 0.9,
                       children: [
-                        _buildCategoryCard(
-                          context,
-                          icon: '🌅',
-                          title: 'أذكار الصباح',
-                          subtitle: 'من الكتاب والسنة',
-                          color: AppColors.teal,
-                          onTap: () => context.push(
-                            '${AppConstants.routeAdhkar}/morning',
+                        StaggeredAnimation(
+                          index: 0,
+                          child: _buildCategoryCard(
+                            context,
+                            icon: '🌅',
+                            title: 'أذكار الصباح',
+                            subtitle: 'من الكتاب والسنة',
+                            color: AppColors.teal,
+                            onTap: () => context.push(
+                              '${AppConstants.routeAdhkar}/morning',
+                            ),
                           ),
                         ),
-                        _buildCategoryCard(
-                          context,
-                          icon: '🌇',
-                          title: 'أذكار المساء',
-                          subtitle: 'من الكتاب والسنة',
-                          color: AppColors.navyDeep,
-                          onTap: () => context.push(
-                            '${AppConstants.routeAdhkar}/evening',
+                        StaggeredAnimation(
+                          index: 1,
+                          child: _buildCategoryCard(
+                            context,
+                            icon: '🌇',
+                            title: 'أذكار المساء',
+                            subtitle: 'من الكتاب والسنة',
+                            color: AppColors.navyDeep,
+                            onTap: () => context.push(
+                              '${AppConstants.routeAdhkar}/evening',
+                            ),
                           ),
                         ),
-                        _buildCategoryCard(
-                          context,
-                          icon: '🕌',
-                          title: 'أذكار بعد الصلاة',
-                          subtitle: 'أذكار الصلوات',
-                          color: AppColors.burgundy,
-                          onTap: () => context.push(
-                            '${AppConstants.routeAdhkar}/after_prayer',
+                        StaggeredAnimation(
+                          index: 2,
+                          child: _buildCategoryCard(
+                            context,
+                            icon: '🕌',
+                            title: 'أذكار بعد الصلاة',
+                            subtitle: 'أذكار الصلوات',
+                            color: AppColors.burgundy,
+                            onTap: () => context.push(
+                              '${AppConstants.routeAdhkar}/after_prayer',
+                            ),
                           ),
                         ),
-                        _buildCategoryCard(
-                          context,
-                          icon: '🤲',
-                          title: 'الأدعية',
-                          subtitle: 'أدعية مأثورة',
-                          color: AppColors.goldDark,
-                          onTap: () => context.push(
-                            AppConstants.routeDuaa,
+                        StaggeredAnimation(
+                          index: 3,
+                          child: _buildCategoryCard(
+                            context,
+                            icon: '🤲',
+                            title: 'الأدعية',
+                            subtitle: 'أدعية مأثورة',
+                            color: AppColors.goldDark,
+                            onTap: () => context.push(
+                              AppConstants.routeDuaa,
+                            ),
                           ),
                         ),
-                        _buildCategoryCard(
-                          context,
-                          icon: '📿',
-                          title: 'التسبيح',
-                          subtitle: 'عداد إلكتروني',
-                          color: AppColors.tealLight,
-                          onTap: () => context.push(
-                            AppConstants.routeTasbeeh,
+                        StaggeredAnimation(
+                          index: 4,
+                          child: _buildCategoryCard(
+                            context,
+                            icon: '📿',
+                            title: 'التسبيح',
+                            subtitle: 'عداد إلكتروني',
+                            color: AppColors.tealLight,
+                            onTap: () => context.push(
+                              AppConstants.routeTasbeeh,
+                            ),
                           ),
                         ),
-                        _buildCategoryCard(
-                          context,
-                          icon: '⚙️',
-                          title: 'الإعدادات',
-                          subtitle: 'تخصيص التطبيق',
-                          color: AppColors.navyMedium,
-                          onTap: () => context.push(
-                            AppConstants.routeSettings,
+                        StaggeredAnimation(
+                          index: 5,
+                          child: _buildCategoryCard(
+                            context,
+                            icon: '⚙️',
+                            title: 'الإعدادات',
+                            subtitle: 'تخصيص التطبيق',
+                            color: AppColors.navyMedium,
+                            onTap: () => context.push(
+                              AppConstants.routeSettings,
+                            ),
                           ),
                         ),
                       ],

@@ -5,6 +5,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../data/repositories/adhkar_repository.dart';
 import '../../shared/widgets/adhkar_card.dart';
 import '../../shared/widgets/arabesque_bg.dart';
+import '../../shared/widgets/staggered_animation.dart';
 
 class AdhkarDetailScreen extends ConsumerWidget {
   final String category;
@@ -89,7 +90,10 @@ class AdhkarDetailScreen extends ConsumerWidget {
                 itemCount: items.length,
                 itemBuilder: (context, index) {
                   final adhkar = items[index];
-                  return AdhkarCard(adhkar: adhkar);
+                  return StaggeredAnimation(
+                    index: index,
+                    child: AdhkarCard(adhkar: adhkar),
+                  );
                 },
               ),
             );
