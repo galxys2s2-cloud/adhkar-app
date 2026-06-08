@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_text_styles.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../providers/prayer_provider.dart';
-import '../data/prayer_times_model.dart';
+import '../../data/prayer_times_model.dart';
 import 'widgets/countdown_widget.dart';
 import 'widgets/prayer_card.dart';
 import '../../../shared/widgets/arabesque_bg.dart';

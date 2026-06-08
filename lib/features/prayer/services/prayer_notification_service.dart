@@ -1,6 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../prayer/data/prayer_times_model.dart';
+import '../../data/prayer_times_model.dart';
 
 /// Manages prayer time notifications.
 class PrayerNotificationService {
