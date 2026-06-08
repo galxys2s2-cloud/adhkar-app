@@ -269,7 +269,7 @@ class PrayerScreen extends ConsumerWidget {
                 style: AppTextStyles.headingMedium,
               ),
               const SizedBox(height: 16),
-              Container(
+              SizedBox(
                 height: 300,
                 child: ListView.separated(
                   itemCount: cities.length,
