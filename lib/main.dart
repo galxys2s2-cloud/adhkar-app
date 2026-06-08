@@ -15,6 +15,7 @@ void main() async {
   ]);
   await Hive.initFlutter();
   await Hive.openBox<String>('favorites');
+  await Hive.openBox('prayer');
   await NotificationService.initialize();
   runApp(
     const ProviderScope(

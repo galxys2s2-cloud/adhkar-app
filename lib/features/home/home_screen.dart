@@ -13,6 +13,19 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        toolbarHeight: 48,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.nightlight_round, color: AppColors.gold),
+            tooltip: 'مواقيت الصلاة',
+            onPressed: () => context.push(AppConstants.routePrayer),
+          ),
+        ],
+      ),
       body: ArabesqueBackground(
         child: SafeArea(
           child: Directionality(

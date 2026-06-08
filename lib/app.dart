@@ -12,6 +12,7 @@ import 'features/tasbeeh/presentation/stats_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/favorites/presentation/favorites_screen.dart';
 import 'features/favorites/providers/favorites_provider.dart';
+import 'features/prayer/presentation/prayer_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -80,6 +81,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'tasbeeh_stats',
         pageBuilder: (context, state) => _buildTransitionPage(
           const StatsScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppConstants.routePrayer,
+        name: 'prayer',
+        pageBuilder: (context, state) => _buildTransitionPage(
+          const PrayerScreen(),
         ),
       ),
     ],

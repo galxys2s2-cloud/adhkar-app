@@ -39,6 +39,10 @@ class AppConstants {
   static const int tasbeehTarget = 33;
   static const int tasbeehMaxPresets = 5;
 
+  // Prayer routes
+  static const String routePrayer = '/prayer';
+  static const String routePrayerSettings = '/prayer/settings';
+
   // App info
   static const String appName = 'الأذكار';
   static const String appVersion = '2.0.0';
