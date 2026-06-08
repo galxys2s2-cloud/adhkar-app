@@ -19,12 +19,12 @@ class PrayerCard extends StatelessWidget {
 
   IconData _getIcon() {
     switch (name) {
-      case 'الفجر': return Icons.wb_twighlight;
+      case 'الفجر': return Icons.wb_twilight;
       case 'الشروق': return Icons.wb_sunny;
-      case 'الظهر': return Icons.wb_cloudy;
+      case 'الظهر': return Icons.wb_sunny_outlined;
       case 'العصر': return Icons.cloud;
       case 'المغرب': return Icons.nights_stay;
-      case 'العشاء': return Icons.nightlight_round;
+      case 'العشاء': return Icons.nightlight;
       default: return Icons.schedule;
     }
   }
