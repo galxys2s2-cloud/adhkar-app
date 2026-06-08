@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
 import '../../../../core/constants/app_constants.dart';
-import '../../data/prayer_times_model.dart';
+import '../../../prayer/data/prayer_times_model.dart';
 
 /// Manages prayer time notifications.
 class PrayerNotificationService {
@@ -10,15 +11,13 @@ class PrayerNotificationService {
 
   /// Schedule notifications for today's remaining prayers.
   Future<void> schedulePrayerNotifications(PrayerTimesModel timings) async {
-    // Cancel all pending prayer notifications
     await cancelAllPrayerNotifications();
 
     final now = DateTime.now();
     final prayers = timings.allTimes;
 
-    int id = 1000; // Start prayer IDs at 1000 to avoid conflicts
+    int id = 1000;
     for (final entry in prayers.entries) {
-      // Skip sunrise — it's not a prayer
       if (entry.key == 'الشروق') continue;
 
       final parts = entry.value.split(':');
@@ -27,9 +26,8 @@ class PrayerNotificationService {
         int.parse(parts[0]), int.parse(parts[1]),
       );
 
-      // Only schedule future prayers
       if (prayerTime.isAfter(now)) {
-        await _scheduleSinglePrayer(
+        await _scheduleSingle(
           id: id++,
           name: entry.key,
           prayerTime: prayerTime,
@@ -38,11 +36,13 @@ class PrayerNotificationService {
     }
   }
 
-  Future<void> _scheduleSinglePrayer({
+  Future<void> _scheduleSingle({
     required int id,
     required String name,
     required DateTime prayerTime,
   }) async {
+    final scheduledDate = tz.TZDateTime.from(prayerTime, tz.local);
+
     const androidDetails = AndroidNotificationDetails(
       'prayer_channel',
       'مواقيت الصلاة',
@@ -50,26 +50,23 @@ class PrayerNotificationService {
       importance: Importance.high,
       priority: Priority.high,
       icon: 'notification_icon',
-      sound: 'azan_sound',
     );
-
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
-
+    const iosDetails = DarwinNotificationDetails();
     const details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
 
-    await _plugin.schedule(
+    await _plugin.zonedSchedule(
       id,
       '🕌 حان وقت صلاة $name',
-      '﷽ — حان وقت الصلاة. اللهم تقبل',
-      prayerTime,
+      '﷽ — اللهم تقبل',
+      scheduledDate,
       details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.dateAndTime,
     );
   }
 
