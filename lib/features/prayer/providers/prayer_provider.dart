@@ -3,6 +3,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../data/prayer_api_service.dart';
 import '../data/prayer_repository.dart';
 import '../data/prayer_times_model.dart';
+import 'prayer_settings_provider.dart';
+
+// Re-export Hive-backed city/method providers for convenience
+export 'prayer_settings_provider.dart' show prayerCityProvider, prayerMethodProvider, prayerMethodNameProvider;
 
 // --- Repository provider ---
 final prayerRepositoryProvider = Provider<PrayerRepository>((ref) {
@@ -14,15 +18,10 @@ final prayerApiServiceProvider = Provider<PrayerApiService>((ref) {
   return PrayerApiService();
 });
 
-// --- City and method state ---
-final selectedCityProvider = StateProvider<String>((ref) => 'بيروت');
-final selectedMethodProvider = StateProvider<int>((ref) => 3);
-final selectedMethodNameProvider = StateProvider<String>((ref) => 'Muslim World League');
-
 // --- Prayer times provider (async, depends on city + method) ---
 final prayerTimingsProvider = FutureProvider<PrayerTimesModel>((ref) async {
-  final city = ref.watch(selectedCityProvider);
-  final method = ref.watch(selectedMethodProvider);
+  final city = ref.watch(prayerCityProvider);
+  final method = ref.watch(prayerMethodProvider);
   final api = ref.read(prayerApiServiceProvider);
   final repo = ref.read(prayerRepositoryProvider);
 

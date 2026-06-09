@@ -17,8 +17,8 @@ class PrayerScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final timingsAsync = ref.watch(prayerTimingsProvider);
-    final city = ref.watch(selectedCityProvider);
-    final methodName = ref.watch(selectedMethodNameProvider);
+    final city = ref.watch(prayerCityProvider);
+    final methodName = ref.watch(prayerMethodNameProvider);
     final use12h = ref.watch(is12hFormatProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -35,9 +35,8 @@ class PrayerScreen extends ConsumerWidget {
             icon: const Icon(Icons.tune),
             tooltip: 'طريقة الحساب',
             onSelected: (method) {
-              ref.read(selectedMethodProvider.notifier).state = method;
-              ref.read(selectedMethodNameProvider.notifier).state =
-                  _methodName(method);
+              ref.read(prayerMethodProvider.notifier).set(method);
+              ref.read(prayerMethodNameProvider.notifier).set(_methodName(method));
             },
             itemBuilder: (_) => [
               const PopupMenuItem(value: 3, child: Text('Muslim World League')),
@@ -279,14 +278,14 @@ class PrayerScreen extends ConsumerWidget {
                   itemCount: cities.length,
                   separatorBuilder: (_, __) => const Divider(height: 1),
                   itemBuilder: (_, i) {
-                    final isSelected = ref.watch(selectedCityProvider) == cities[i];
+                    final isSelected = ref.watch(prayerCityProvider) == cities[i];
                     return ListTile(
                       title: Text(cities[i]),
                       trailing: isSelected
                           ? const Icon(Icons.check, color: AppColors.gold)
                           : null,
                       onTap: () {
-                        ref.read(selectedCityProvider.notifier).state = cities[i];
+                        ref.read(prayerCityProvider.notifier).set(cities[i]);
                         Navigator.pop(context);
                       },
                     );
