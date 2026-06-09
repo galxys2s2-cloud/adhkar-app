@@ -48,7 +48,6 @@ class PrayerNotificationService {
       channelDescription: 'إشعارات أوقات الصلاة',
       importance: Importance.high,
       priority: Priority.high,
-      icon: 'notification_icon',
     );
     const iosDetails = DarwinNotificationDetails();
     const details = NotificationDetails(
