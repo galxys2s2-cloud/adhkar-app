@@ -8,6 +8,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Android-brightgreen?logo=android)](https://github.com/galxys2s2-cloud/adhkar-app/releases)
 [![Web](https://img.shields.io/badge/🌐_Web-App-%23FF5722?logo=githubpages&logoColor=white)](https://galxys2s2-cloud.github.io/adhkar-app/)
 [![GitHub Pages](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgalxys2s2-cloud.github.io%2Fadhkar-app%2F.last_build_id&query=%24&label=🚀%20Deployed&color=success&logo=github)](https://galxys2s2-cloud.github.io/adhkar-app/)
+[![Version](https://img.shields.io/badge/📿_v2.1.2-08306b?logo=github&logoColor=white)](https://github.com/galxys2s2-cloud/adhkar-app/releases/tag/v2.1.2)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 <br>
@@ -50,25 +51,49 @@ Designed as a modern, offline-first adhkar app with a heritage Islamic aesthetic
 ### 📿 التسبيح
 - عداد تسبيح رقمي مع **Auto-Advance** (الانتقال التلقائي للذكر التالي)
 - عدّاد لكل ذكر على حدة
+- إحصائيات التسبيح: حفظ الجلسات في Hive (يومي/أسبوعي/شهري)
+
+### 🕌 مواقيت الصلاة
+- جلب مواقيت الصلاة عبر **Aladhan.com API**
+- اختيار المدينة + طريقة الحساب (جامعة أم القرى، رابطة العالم الإسلامي...)
+- عداد تنازلي للصلاة التالية
+- أيقونة الصلاة التالية (64px)
+- عرض التاريخ الهجري والميلادي
+- **إشعارات الصلاة** — تشغيل/إيقاف من الإعدادات
+- تنسيق الوقت 12h/24h حسب الرغبة
+- حفظ الإعدادات في Hive (تلقائي)
+- Auto-refresh عند منتصف الليل
 
 ### 🎨 التصميم
 - واجهة **تراثية عربية** — نيلي غامق + ذهبي + عاجي
+- أيقونة التطبيق + Splash Screen بتصميم **AI فاخر** (هلال ونجوم بخط الثلث)
 - خط **Amiri** العثماني (مضمّن، يعمل offline)
 - زخارف **Arabesque** (CustomPainter)
 - دعم **Dark Mode**
 - خط عربي واضح وكبير للقراءة المريحة
 
+### 🔔 الإشعارات
+- تذكير صباحي بالأذكار (الساعة ٦:٠٠ ص)
+- تذكير مسائي بالأذكار (الساعة ٥:٠٠ م)
+- تذكير تسبيح عشوائي
+- إشعارات أوقات الصلاة الخمس (قابلة للتشغيل/الإيقاف)
+
 ### ⚡ التقنية
-- **Offline-First** — لا يحتاج إنترنت بعد التثبيت
+- **Offline-First** — معظم المحتوى بدون إنترنت
 - **Flutter 3.44** — Riverpod, GoRouter, Hive
-- **Fast & Lightweight** — APK بحجم ~18MB
-- **PWA-ready** — تجربة ويب سلسة عبر GitHub Pages
+- **Fast & Lightweight** — APK بحجم ~20MB
 
 ---
 
 ## 🖼️ لقطات الشاشة — Screenshots
 
-> *سيتم إضافة لقطات شاشة قريبًا*
+<img src="assets/icons/app_icon_ai.png" width="100" alt="أيقونة التطبيق">
+
+> **أيقونة التطبيق** — تصميم AI فاخر: هلال ونجوم في سماء نيليّة بخط الثلث الذهبي 🤲
+
+| | | |
+|---|---|---|
+| *سيتم إضافة لقطات الشاشة قريبًا* | | |
 
 ---
 
@@ -82,7 +107,7 @@ Designed as a modern, offline-first adhkar app with a heritage Islamic aesthetic
 
 ### 📱 Android APK
 
-[<img src="https://img.shields.io/badge/📥_تحميل_آخر_إصدار-v2.1-brightgreen?style=for-the-badge" alt="Download">](https://github.com/galxys2s2-cloud/adhkar-app/releases/latest)
+[<img src="https://img.shields.io/badge/📥_تحميل_آخر_إصدار-v2.1.2-brightgreen?style=for-the-badge" alt="Download">](https://github.com/galxys2s2-cloud/adhkar-app/releases/latest)
 
 | Architecture | الحجم | الرابط |
 |-------------|-------|--------|
@@ -106,8 +131,17 @@ Designed as a modern, offline-first adhkar app with a heritage Islamic aesthetic
 | [Riverpod](https://riverpod.dev) | إدارة الحالة (State Management) |
 | [GoRouter](https://pub.dev/packages/go_router) | التنقل بين الشاشات |
 | [Hive](https://pub.dev/packages/hive) | التخزين المحلي (Offline) |
+| [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications) | الإشعارات المحلية |
+| [http](https://pub.dev/packages/http) | جلب مواقيت الصلاة من API |
+| [intl](https://pub.dev/packages/intl) | تنسيق الوقت والتاريخ |
+| [timezone](https://pub.dev/packages/timezone) | المناطق الزمنية للإشعارات |
+| [share_plus](https://pub.dev/packages/share_plus) | مشاركة الأذكار |
+| [url_launcher](https://pub.dev/packages/url_launcher) | فتح الروابط |
+| [flutter_animate](https://pub.dev/packages/flutter_animate) | أنيميشن smooth |
 | [Flutter CustomPainter](https://api.flutter.dev/flutter/rendering/CustomPainter-class.html) | الزخارف التراثية |
 | [Amiri Font](https://www.amirifont.org) | الخط العربي العثماني |
+| [flutter_launcher_icons](https://pub.dev/packages/flutter_launcher_icons) | أيقونة التطبيق |
+| [flutter_native_splash](https://pub.dev/packages/flutter_native_splash) | شاشة البداية (Splash) |
 | [GitHub Actions](https://github.com/features/actions) | CI/CD — بناء APK + Web |
 | [GitHub Pages](https://pages.github.com) | استضافة النسخة الويب |
 
@@ -129,6 +163,7 @@ lib/
 │   ├── adhkar/         # الأذكار (صباح، مساء، بعد الصلاة)
 │   ├── duaa/           # الأدعية
 │   ├── tasbeeh/        # التسبيح
+│   ├── prayer/         # مواقيت الصلاة
 │   └── settings/       # الإعدادات
 └── shared/
     └── widgets/        # المكونات المشتركة

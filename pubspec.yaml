@@ -1,7 +1,7 @@
 name: adhkar_app
 description: تطبيق الأذكار — أذكار الصباح والمساء، أدعية مأثورة، تسبيح إلكتروني
 publish_to: 'none'
-version: 2.0.0+1
+version: 2.1.2+1
 
 environment:
   sdk: ^3.2.0
