@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../providers/prayer_provider.dart';
+import '../providers/time_format_provider.dart';
 import '../data/prayer_times_model.dart';
 import 'widgets/countdown_widget.dart';
 import 'widgets/prayer_card.dart';
@@ -18,6 +19,7 @@ class PrayerScreen extends ConsumerWidget {
     final timingsAsync = ref.watch(prayerTimingsProvider);
     final city = ref.watch(selectedCityProvider);
     final methodName = ref.watch(selectedMethodNameProvider);
+    final use12h = ref.watch(is12hFormatProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -52,7 +54,7 @@ class PrayerScreen extends ConsumerWidget {
             child: CircularProgressIndicator(color: AppColors.gold),
           ),
           error: (err, _) => _buildError(context, err.toString(), ref),
-          data: (timings) => _buildContent(context, ref, timings, city, methodName, isDark),
+          data: (timings) => _buildContent(context, ref, timings, city, methodName, isDark, use12h),
         ),
       ),
     );
@@ -65,6 +67,7 @@ class PrayerScreen extends ConsumerWidget {
     String city,
     String methodName,
     bool isDark,
+    bool use12h,
   ) {
     final now = ref.watch(currentTimeProvider).valueOrNull ?? DateTime.now();
     final nextPrayer = timings.nextPrayer(now);
@@ -155,6 +158,7 @@ class PrayerScreen extends ConsumerWidget {
                     isNext: isNext,
                     isPast: nextPrayer != null && entry.key != nextPrayer.key &&
                         index < timings.allTimes.keys.toList().indexOf(nextPrayer.key),
+                    use12h: use12h,
                   ),
                 );
               },

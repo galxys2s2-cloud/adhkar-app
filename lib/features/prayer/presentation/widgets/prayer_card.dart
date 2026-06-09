@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/utils/time_formatter.dart';
 
 /// A single prayer time card showing name, time, and active state.
 class PrayerCard extends StatelessWidget {
@@ -8,6 +9,7 @@ class PrayerCard extends StatelessWidget {
   final String time;
   final bool isNext;
   final bool isPast;
+  final bool use12h;
 
   const PrayerCard({
     super.key,
@@ -15,6 +17,7 @@ class PrayerCard extends StatelessWidget {
     required this.time,
     this.isNext = false,
     this.isPast = false,
+    this.use12h = false,
   });
 
   IconData _getIcon() {
@@ -32,6 +35,7 @@ class PrayerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final displayTime = TimeFormatter.format(time, use12h: use12h);
 
     Color borderColor;
     Color bgColor;
@@ -89,7 +93,7 @@ class PrayerCard extends StatelessWidget {
           ),
           // Time
           Text(
-            time,
+            displayTime,
             style: AppTextStyles.counterNumber.copyWith(
               fontSize: 22,
               color: isNext ? AppColors.gold : textColor,

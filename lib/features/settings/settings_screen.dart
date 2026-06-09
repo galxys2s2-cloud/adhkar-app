@@ -7,6 +7,7 @@ import '../../core/constants/app_constants.dart';
 import '../../shared/utils/notification_service.dart';
 import '../../shared/widgets/arabesque_bg.dart';
 import '../../shared/widgets/staggered_animation.dart';
+import '../prayer/providers/time_format_provider.dart';
 
 // Theme mode provider
 final themeModeProvider = StateProvider<ThemeMode>((ref) {
@@ -27,6 +28,7 @@ class SettingsScreen extends ConsumerWidget {
     final morningEnabled = ref.watch(morningAdhkarEnabledProvider);
     final eveningEnabled = ref.watch(eveningAdhkarEnabledProvider);
     final tasbeehEnabled = ref.watch(randomTasbeehEnabledProvider);
+    final is12h = ref.watch(is12hFormatProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -142,14 +144,38 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
 
-              // About section
+              // Prayer Times section
               StaggeredAnimation(
                 index: 6,
-                child: _buildSectionHeader('حول التطبيق'),
+                child: _buildSectionHeader('مواقيت الصلاة'),
               ),
               const SizedBox(height: 12),
               StaggeredAnimation(
                 index: 7,
+                child: _buildSettingCard(
+                  context,
+                  icon: Icons.access_time,
+                  title: 'صيغة ١٢ ساعة',
+                  subtitle: is12h ? 'مثال: ٥:٢٣ ص - ٩:٣٠ م' : 'مثال: 05:23 - 21:30',
+                  trailing: Switch.adaptive(
+                    value: is12h,
+                    activeTrackColor: AppColors.gold,
+                    onChanged: (value) {
+                      ref.read(is12hFormatProvider.notifier).set(value);
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // About section
+              StaggeredAnimation(
+                index: 8,
+                child: _buildSectionHeader('حول التطبيق'),
+              ),
+              const SizedBox(height: 12),
+              StaggeredAnimation(
+                index: 9,
                 child: _buildSettingCard(
                   context,
                   icon: Icons.info_outline,
@@ -165,7 +191,7 @@ class SettingsScreen extends ConsumerWidget {
 
               // Footer
               StaggeredAnimation(
-                index: 8,
+                index: 10,
                 child: Column(
                   children: [
                     Center(
