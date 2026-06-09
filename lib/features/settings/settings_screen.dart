@@ -8,6 +8,8 @@ import '../../shared/utils/notification_service.dart';
 import '../../shared/widgets/arabesque_bg.dart';
 import '../../shared/widgets/staggered_animation.dart';
 import '../prayer/providers/time_format_provider.dart';
+import '../prayer/providers/prayer_notification_provider.dart';
+import '../prayer/providers/prayer_provider.dart';
 
 // Theme mode provider
 final themeModeProvider = StateProvider<ThemeMode>((ref) {
@@ -29,6 +31,7 @@ class SettingsScreen extends ConsumerWidget {
     final eveningEnabled = ref.watch(eveningAdhkarEnabledProvider);
     final tasbeehEnabled = ref.watch(randomTasbeehEnabledProvider);
     final is12h = ref.watch(is12hFormatProvider);
+    final prayerNotifsEnabled = ref.watch(prayerNotificationsEnabledProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -168,14 +171,43 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
 
-              // About section
+              // Prayer Notifications toggle
               StaggeredAnimation(
                 index: 8,
+                child: _buildSettingCard(
+                  context,
+                  icon: Icons.mosque,
+                  title: 'إشعارات الصلاة',
+                  subtitle: 'تنبيه عند دخول وقت كل صلاة',
+                  trailing: Switch.adaptive(
+                    value: prayerNotifsEnabled,
+                    activeTrackColor: AppColors.gold,
+                    onChanged: (value) async {
+                      await ref.read(prayerNotificationsEnabledProvider.notifier).set(value);
+                      if (value) {
+                        final timings = ref.read(prayerTimingsProvider).valueOrNull;
+                        if (timings != null) {
+                          final service = ref.read(prayerNotificationServiceProvider);
+                          await service.schedulePrayerNotifications(timings);
+                        }
+                      } else {
+                        final service = ref.read(prayerNotificationServiceProvider);
+                        await service.cancelAllPrayerNotifications();
+                      }
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // About section
+              StaggeredAnimation(
+                index: 9,
                 child: _buildSectionHeader('حول التطبيق'),
               ),
               const SizedBox(height: 12),
               StaggeredAnimation(
-                index: 9,
+                index: 10,
                 child: _buildSettingCard(
                   context,
                   icon: Icons.info_outline,
@@ -191,7 +223,7 @@ class SettingsScreen extends ConsumerWidget {
 
               // Footer
               StaggeredAnimation(
-                index: 10,
+                index: 11,
                 child: Column(
                   children: [
                     Center(

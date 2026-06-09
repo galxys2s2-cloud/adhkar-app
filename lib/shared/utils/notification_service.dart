@@ -12,6 +12,9 @@ class NotificationService {
 
   static bool _initialized = false;
 
+  /// Expose the underlying plugin so prayer notification service can use it.
+  static FlutterLocalNotificationsPlugin get plugin => _notifications;
+
   static Future<void> initialize() async {
     if (_initialized) return;
 

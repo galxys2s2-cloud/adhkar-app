@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../providers/prayer_provider.dart';
 import '../providers/time_format_provider.dart';
+import '../providers/prayer_notification_provider.dart';
 import '../data/prayer_times_model.dart';
 import 'widgets/countdown_widget.dart';
 import 'widgets/prayer_card.dart';
@@ -71,6 +72,12 @@ class PrayerScreen extends ConsumerWidget {
     final now = ref.watch(currentTimeProvider).valueOrNull ?? DateTime.now();
     final nextPrayer = timings.nextPrayer(now);
     final remaining = timings.durationUntilNext(now);
+
+    // Auto-schedule prayer notifications if toggle is ON
+    final notifsEnabled = ref.watch(prayerNotificationsEnabledProvider);
+    if (notifsEnabled) {
+      ref.read(prayerNotificationServiceProvider).schedulePrayerNotifications(timings);
+    }
 
     return Directionality(
       textDirection: TextDirection.rtl,
