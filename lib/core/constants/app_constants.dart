@@ -45,5 +45,5 @@ class AppConstants {
 
   // App info
   static const String appName = 'الأذكار';
-  static const String appVersion = '2.1.2';
+  static const String appVersion = '2.1.3';
 }
