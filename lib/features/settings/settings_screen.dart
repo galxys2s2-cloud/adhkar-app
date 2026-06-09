@@ -189,10 +189,17 @@ class SettingsScreen extends ConsumerWidget {
                       await ref.read(prayerNotificationsEnabledProvider.notifier).set(value);
                       if (value) {
                         await NotificationService.requestPermission();
-                        final timings = ref.read(prayerTimingsProvider).valueOrNull;
-                        if (timings != null) {
-                          final service = ref.read(prayerNotificationServiceProvider);
-                          await service.schedulePrayerNotifications(timings);
+                        // Fetch timings — from cache or live API
+                        final service = ref.read(prayerNotificationServiceProvider);
+                        try {
+                          var timings = ref.read(prayerTimingsProvider).valueOrNull;
+                          timings ??= await ref.read(prayerTimingsProvider.future);
+                          if (timings != null) {
+                            await service.schedulePrayerNotifications(timings);
+                          }
+                        } catch (e) {
+                          // Timings not available yet — scheduling will happen
+                          // when user opens prayer screen
                         }
                       } else {
                         final service = ref.read(prayerNotificationServiceProvider);

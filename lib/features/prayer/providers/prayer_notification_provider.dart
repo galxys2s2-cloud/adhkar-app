@@ -16,7 +16,7 @@ class PrayerNotifToggleNotifier extends StateNotifier<bool> {
 
   Future<void> _load() async {
     final box = await Hive.openBox('prayer');
-    state = box.get('notifications_enabled', defaultValue: false) as bool;
+    state = box.get('notifications_enabled', defaultValue: true) as bool;
   }
 
   Future<void> set(bool value) async {

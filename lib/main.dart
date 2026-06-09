@@ -5,6 +5,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'app.dart';
 import 'core/theme/app_theme.dart';
 import 'features/settings/settings_screen.dart';
+import 'features/prayer/providers/prayer_notification_provider.dart';
+import 'features/prayer/providers/prayer_provider.dart';
 import 'shared/utils/notification_service.dart';
 
 void main() async {
@@ -30,6 +32,20 @@ class AdhkarApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+
+    // Auto-schedule prayer notifications on startup if toggle is ON
+    Future.microtask(() async {
+      try {
+        final enabled = ref.read(prayerNotificationsEnabledProvider);
+        if (enabled) {
+          final timings = await ref.read(prayerTimingsProvider.future);
+          final service = ref.read(prayerNotificationServiceProvider);
+          await service.schedulePrayerNotifications(timings);
+        }
+      } catch (_) {
+        // City not set or API unavailable — user will trigger when opening prayer screen
+      }
+    });
 
     return MaterialApp.router(
       title: 'الأذكار',
