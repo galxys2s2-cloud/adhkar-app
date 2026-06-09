@@ -93,6 +93,7 @@ class SettingsScreen extends ConsumerWidget {
                     onChanged: (value) async {
                       ref.read(morningAdhkarEnabledProvider.notifier).state = value;
                       if (value) {
+                        await NotificationService.requestPermission();
                         await NotificationService.scheduleMorningAdhkar();
                       } else {
                         await NotificationService.cancelMorningAdhkar();
@@ -115,6 +116,7 @@ class SettingsScreen extends ConsumerWidget {
                     onChanged: (value) async {
                       ref.read(eveningAdhkarEnabledProvider.notifier).state = value;
                       if (value) {
+                        await NotificationService.requestPermission();
                         await NotificationService.scheduleEveningAdhkar();
                       } else {
                         await NotificationService.cancelEveningAdhkar();
@@ -137,6 +139,7 @@ class SettingsScreen extends ConsumerWidget {
                     onChanged: (value) async {
                       ref.read(randomTasbeehEnabledProvider.notifier).state = value;
                       if (value) {
+                        await NotificationService.requestPermission();
                         await NotificationService.scheduleRandomTasbeeh();
                       } else {
                         await NotificationService.cancelRandomTasbeeh();
@@ -185,6 +188,7 @@ class SettingsScreen extends ConsumerWidget {
                     onChanged: (value) async {
                       await ref.read(prayerNotificationsEnabledProvider.notifier).set(value);
                       if (value) {
+                        await NotificationService.requestPermission();
                         final timings = ref.read(prayerTimingsProvider).valueOrNull;
                         if (timings != null) {
                           final service = ref.read(prayerNotificationServiceProvider);

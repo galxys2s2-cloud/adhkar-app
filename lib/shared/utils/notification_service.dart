@@ -45,7 +45,25 @@ class NotificationService {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(androidChannel);
 
+    // Request notification permission on Android 13+
+    await _requestAndroidPermission();
+
     _initialized = true;
+  }
+
+  /// Request POST_NOTIFICATIONS permission on Android 13+ (API 33).
+  static Future<bool> _requestAndroidPermission() async {
+    final impl = _notifications.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    if (impl == null) return false;
+    final granted = await impl.requestNotificationsPermission();
+    return granted ?? false;
+  }
+
+  /// Public helper — call from toggle handlers after user enables notifications.
+  static Future<bool> requestPermission() async {
+    await _ensureInitialized();
+    return _requestAndroidPermission();
   }
 
   static Future<void> _ensureInitialized() async {
