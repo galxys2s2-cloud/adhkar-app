@@ -72,6 +72,8 @@ class PrayerScreen extends ConsumerWidget {
     final now = ref.watch(currentTimeProvider).valueOrNull ?? DateTime.now();
     final nextPrayer = timings.nextPrayer(now);
     final remaining = timings.durationUntilNext(now);
+    final midnight = DateTime(now.year, now.month, now.day + 1);
+    final untilMidnight = midnight.difference(now);
 
     // Auto-schedule prayer notifications if toggle is ON
     final notifsEnabled = ref.watch(prayerNotificationsEnabledProvider);
@@ -86,6 +88,21 @@ class PrayerScreen extends ConsumerWidget {
         onRefresh: () => ref.refresh(prayerTimingsProvider.future),
         child: CustomScrollView(
           slivers: [
+            // Arabic date display
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: Center(
+                  child: Text(
+                    'اليوم: ${_formatDate(now)}',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.gold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ),
             // Countdown section
             SliverToBoxAdapter(
               child: Padding(
@@ -110,25 +127,11 @@ class PrayerScreen extends ConsumerWidget {
                   ),
                   child: Column(
                     children: [
-                      if (nextPrayer != null) ...[
-                        Text(
-                          'متبقي على ${nextPrayer.key}',
-                          style: AppTextStyles.headingMedium.copyWith(
-                            color: AppColors.gold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        CountdownWidget(
-                          remaining: remaining,
-                          nextTime: nextPrayer.value,
-                        ),
-                      ] else ...[
-                        Text(
-                          'تمت جميع الصلوات — باكراً بإذن الله',
-                          style: AppTextStyles.bodyLarge,
-                        ),
-                      ],
+                      CountdownWidget(
+                        remaining: nextPrayer != null ? remaining : untilMidnight,
+                        nextTime: nextPrayer != null ? nextPrayer.value : midnight,
+                        nextPrayerName: nextPrayer?.key ?? 'منتصف الليل',
+                      ),
                     ],
                   ),
                 ),
@@ -304,6 +307,20 @@ class PrayerScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime now) {
+    final dayNames = [
+      'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء',
+      'الخميس', 'الجمعة', 'السبت',
+    ];
+    final monthNames = [
+      'كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران',
+      'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول',
+    ];
+    final dayName = dayNames[now.weekday % 7];
+    final monthName = monthNames[now.month - 1];
+    return '$dayName، ${now.day} $monthName ${now.year}';
   }
 
   String _methodName(int method) {
