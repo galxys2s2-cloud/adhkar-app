@@ -1,10 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'prayer_times_model.dart';
 
 /// API service for fetching prayer times from Aladhan.com.
 class PrayerApiService {
-  static const _baseUrl = 'https://api.aladhan.com/v1';
+  static const _mobileBaseUrl = 'https://api.aladhan.com/v1';
+  static const _webBaseUrl = 'https://obsidian.meganet.live/prayer-proxy/v1';
+
+  static String get _baseUrl => kIsWeb ? _webBaseUrl : _mobileBaseUrl;
 
   /// Fetch prayer times by city name.
   Future<PrayerTimesModel> fetchTimings({
