@@ -129,13 +129,15 @@ class NotificationService {
     _initialized = true;
   }
 
-  /// One-shot: init + request all permissions + refresh saved schedule.
+  /// One-shot: init + refresh saved schedule (permissions are lazy, requested on settings screen).
   /// Call from main.dart after Hive is ready.
   Future<void> initFull() async {
-    await init();
-    await requestPermissions();
-    await requestExactAlarmPermission();
-    await refreshSchedule();
+    try {
+      await init();
+      await refreshSchedule();
+    } catch (e) {
+      debugPrint('NotificationService.initFull error: $e');
+    }
   }
 
   // ── Convenience static methods (used by settings_screen) ──
