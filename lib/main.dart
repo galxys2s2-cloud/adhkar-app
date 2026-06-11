@@ -40,6 +40,8 @@ class AdhkarApp extends ConsumerWidget {
         final prayerBox = Hive.box('prayer');
         final enabled = prayerBox.get('notifications_enabled', defaultValue: true) as bool;
         if (enabled) {
+          // Ensure exact alarm permission (Android 14+)
+          await NotificationService().requestExactAlarmPermission();
           final timings = await ref.read(prayerTimingsProvider.future);
           final service = ref.read(prayerNotificationServiceProvider);
           await service.schedulePrayerNotifications(timings);

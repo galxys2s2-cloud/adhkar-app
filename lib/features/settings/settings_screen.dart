@@ -83,14 +83,15 @@ class SettingsScreen extends ConsumerWidget {
                   title: 'أذكار الصباح',
                   subtitle: 'تنبيه يومي بعد الفجر (٦:٠٠ صباحاً)',
                   trailing: Switch.adaptive(
-                    value: settings.morningEnabled,
-                    activeTrackColor: AppColors.gold,
-                    onChanged: (value) async {
-                      await notifier.toggleMorning(value);
-                      if (value) {
-                        await NotificationService.requestPermission();
-                      }
-                    },
+                  value: settings.morningEnabled,
+                  activeTrackColor: AppColors.gold,
+                  onChanged: (value) async {
+                    await notifier.toggleMorning(value);
+                    if (value) {
+                      await NotificationService.requestPermission();
+                      await NotificationService().requestExactAlarmPermission();
+                    }
+                  },
                   ),
                 ),
               ),
@@ -109,6 +110,7 @@ class SettingsScreen extends ConsumerWidget {
                       await notifier.toggleEvening(value);
                       if (value) {
                         await NotificationService.requestPermission();
+                        await NotificationService().requestExactAlarmPermission();
                       }
                     },
                   ),
@@ -129,6 +131,7 @@ class SettingsScreen extends ConsumerWidget {
                       await notifier.toggleTasbeeh(value);
                       if (value) {
                         await NotificationService.requestPermission();
+                        await NotificationService().requestExactAlarmPermission();
                       }
                     },
                   ),
@@ -175,6 +178,7 @@ class SettingsScreen extends ConsumerWidget {
                       await ref.read(prayerNotificationsEnabledProvider.notifier).set(value);
                       if (value) {
                         await NotificationService.requestPermission();
+                        await NotificationService().requestExactAlarmPermission();
                         // Fetch timings — from cache or live API
                         final service = ref.read(prayerNotificationServiceProvider);
                         try {
