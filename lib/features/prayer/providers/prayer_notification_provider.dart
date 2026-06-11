@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../services/prayer_notification_service.dart';
-import '../../../shared/utils/notification_service.dart';
+import '../../../core/services/notification_service.dart';
 
 /// Hive-backed toggle: persist prayer notification preference across restarts.
 final prayerNotificationsEnabledProvider =

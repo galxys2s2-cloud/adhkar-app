@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'app.dart';
+import 'core/services/notification_service.dart';
 import 'core/theme/app_theme.dart';
-import 'features/settings/settings_screen.dart';
 import 'features/prayer/providers/prayer_notification_provider.dart';
 import 'features/prayer/providers/prayer_provider.dart';
-import 'shared/utils/notification_service.dart';
+import 'features/settings/settings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +18,7 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox<String>('favorites');
   await Hive.openBox('prayer');
-  await NotificationService.initialize();
+  await NotificationService().initFull();
   runApp(
     const ProviderScope(
       child: AdhkarApp(),

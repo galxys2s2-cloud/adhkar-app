@@ -75,6 +75,9 @@ class NotificationSettings {
 }
 
 /// Service for managing local scheduled notifications
+///
+/// UNIFIED service — the single source of truth for all notifications.
+/// Use via singleton: NotificationService()
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
@@ -83,23 +86,27 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
+  /// Expose the underlying plugin for external services (e.g. prayer notifications).
+  static FlutterLocalNotificationsPlugin get plugin => _instance._plugin;
+
   static const String _settingsBoxName = 'notification_settings';
   static const String _settingsKey = 'settings';
 
   bool _initialized = false;
   Box<Map>? _settingsBox;
 
-  /// Initialize timezone data and notification plugin
+  // ── Init ──
+
+  /// Initialize timezone data and notification plugin.
+  /// Safe to call multiple times — idempotent.
   Future<void> init() async {
     if (_initialized) return;
 
     tz_data.initializeTimeZones();
-    // Use device timezone for scheduling
     final local = DateTime.now().timeZoneName;
     try {
       tz.setLocalLocation(tz.getLocation(local));
     } catch (_) {
-      // Fallback to UTC if timezone name is not in database
       tz.setLocalLocation(tz.UTC);
     }
 
@@ -122,7 +129,49 @@ class NotificationService {
     _initialized = true;
   }
 
-  /// Handle notification tap
+  /// One-shot: init + request all permissions + refresh saved schedule.
+  /// Call from main.dart after Hive is ready.
+  Future<void> initFull() async {
+    await init();
+    await requestPermissions();
+    await requestExactAlarmPermission();
+    await refreshSchedule();
+  }
+
+  // ── Convenience static methods (used by settings_screen) ──
+
+  /// Static convenience — requests POST_NOTIFICATIONS permission (Android 13+).
+  static Future<bool> requestPermission() => _instance.requestPermissions();
+
+  /// Static convenience — schedule morning adhkar at default 7:00.
+  static Future<void> scheduleMorningAdhkar() =>
+      _instance._scheduleMorning(AppConstants.defaultMorningHour, AppConstants.defaultMorningMinute);
+
+  /// Static convenience — schedule evening adhkar at default 18:00.
+  static Future<void> scheduleEveningAdhkar() =>
+      _instance._scheduleEvening(AppConstants.defaultEveningHour, AppConstants.defaultEveningMinute);
+
+  /// Static convenience — schedule 3 tasbeeh reminders.
+  static Future<void> scheduleRandomTasbeeh() => _instance._scheduleRandomTasbeeh();
+
+  /// Static convenience — cancel morning adhkar.
+  static Future<void> cancelMorningAdhkar() =>
+      _instance._cancelMorning();
+
+  /// Static convenience — cancel evening adhkar.
+  static Future<void> cancelEveningAdhkar() =>
+      _instance._cancelEvening();
+
+  /// Static convenience — cancel tasbeeh reminders.
+  static Future<void> cancelRandomTasbeeh() =>
+      _instance._cancelRandomTasbeeh();
+
+  /// Static convenience — cancel all notifications.
+  static Future<void> cancelAllNotifications() =>
+      _instance._plugin.cancelAll();
+
+  // ── Notification tap handler ──
+
   void _onNotificationResponse(NotificationResponse response) {
     final payload = response.payload;
     if (payload == null || payload.isEmpty) return;
@@ -136,7 +185,9 @@ class NotificationService {
     }
   }
 
-  /// Request runtime permissions (Android 13+ POST_NOTIFICATIONS)
+  // ── Permissions ──
+
+  /// Request runtime permissions (Android 13+ POST_NOTIFICATIONS).
   Future<bool> requestPermissions() async {
     final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
@@ -160,7 +211,7 @@ class NotificationService {
     return false;
   }
 
-  /// Open app settings for exact alarm permission (Android 12+)
+  /// Open app settings for exact alarm permission (Android 12+).
   Future<bool> requestExactAlarmPermission() async {
     final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
@@ -204,7 +255,7 @@ class NotificationService {
 
   // ── Scheduling ──
 
-  /// Apply settings: schedule or cancel notifications accordingly
+  /// Apply settings: schedule or cancel notifications accordingly.
   Future<void> _applySettings(NotificationSettings settings) async {
     if (settings.morningEnabled) {
       await _scheduleMorning(settings.morningHour, settings.morningMinute);
@@ -219,7 +270,7 @@ class NotificationService {
     }
   }
 
-  /// Schedule or re-schedule morning notification
+  /// Schedule or re-schedule morning notification.
   Future<void> _scheduleMorning(int hour, int minute) async {
     await _cancelMorning();
 
@@ -239,7 +290,7 @@ class NotificationService {
     );
   }
 
-  /// Schedule or re-schedule evening notification
+  /// Schedule or re-schedule evening notification.
   Future<void> _scheduleEvening(int hour, int minute) async {
     await _cancelEvening();
 
@@ -257,6 +308,29 @@ class NotificationService {
       hour: hour,
       minute: minute,
     );
+  }
+
+  /// Schedule 3 tasbeeh reminders throughout the day.
+  Future<void> _scheduleRandomTasbeeh() async {
+    await _cancelRandomTasbeeh();
+
+    final reminders = [
+      _TasbeehReminder(10, 0, 'سبّح الله في الصباح 🌅'),
+      _TasbeehReminder(14, 0, 'اذكر الله — سبحان الله وبحمده ☀️'),
+      _TasbeehReminder(20, 0, 'أستغفر الله العظيم 🌙'),
+    ];
+
+    for (int i = 0; i < reminders.length; i++) {
+      final r = reminders[i];
+      await _zonedDailySchedule(
+        id: '${AppConstants.notifRandomId}_$i'.hashCode,
+        title: 'تذكير بالتسبيح 📿',
+        body: r.body,
+        payload: 'tasbeeh',
+        hour: r.hour,
+        minute: r.minute,
+      );
+    }
   }
 
   Future<void> _zonedDailySchedule({
@@ -287,8 +361,6 @@ class NotificationService {
       channelDescription: AppConstants.notifChannelDesc,
       importance: Importance.high,
       priority: Priority.high,
-      // NOTE: replace @mipmap/ic_launcher with a proper small icon drawable
-      // e.g. @drawable/ic_notification when Android native project is regenerated.
       icon: '@mipmap/ic_launcher',
       styleInformation: BigTextStyleInformation(body),
       category: AndroidNotificationCategory.reminder,
@@ -331,11 +403,17 @@ class NotificationService {
     await _plugin.cancel(AppConstants.notifEveningId.hashCode);
   }
 
+  Future<void> _cancelRandomTasbeeh() async {
+    for (int i = 0; i < 3; i++) {
+      await _plugin.cancel('${AppConstants.notifRandomId}_$i'.hashCode);
+    }
+  }
+
   Future<void> cancelAll() async {
     await _plugin.cancelAll();
   }
 
-  /// Cancel all and re-schedule based on saved settings (call on app start)
+  /// Cancel all and re-schedule based on saved settings (call on app start).
   Future<void> refreshSchedule() async {
     final settings = await loadSettings();
     await _applySettings(settings);
@@ -365,4 +443,12 @@ class NotificationService {
     if (text.length <= maxLength) return text;
     return '${text.substring(0, maxLength)}…';
   }
+}
+
+class _TasbeehReminder {
+  final int hour;
+  final int minute;
+  final String body;
+
+  _TasbeehReminder(this.hour, this.minute, this.body);
 }
