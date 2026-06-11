@@ -3,9 +3,13 @@ name: Build Android APK
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
     branches: [main]
-  workflow_dispatch: # Allow manual trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -14,11 +18,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.x'
           channel: 'stable'
+
+      - name: Extract version
+        run: |
+          VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //' | sed 's/\+.*//')
+          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "BUILD_NUM=$(git rev-list --count HEAD)" >> $GITHUB_ENV
 
       - name: Flutter pub get
         run: flutter pub get
@@ -26,11 +41,24 @@ jobs:
       - name: Flutter analyze
         run: flutter analyze
 
-      - name: Build APK
-        run: flutter build apk --release
+      - name: Build APKs (split per ABI)
+        run: flutter build apk --release --split-per-abi --build-number ${{ env.BUILD_NUM }}
 
-      - name: Upload APK artifact
+      - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: adhkar-app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: adhkar-app-apks
+          path: build/app/outputs/flutter-apk/app-*-release.apk
+
+      - name: Upload to GitHub Release (on tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          TAG="${{ github.ref_name }}"
+          gh release create "$TAG" \
+            build/app/outputs/flutter-apk/app-*-release.apk \
+            --title "أذكاري ${TAG}" \
+            --generate-notes \
+            --latest
