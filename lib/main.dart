@@ -36,7 +36,9 @@ class AdhkarApp extends ConsumerWidget {
     // Auto-schedule prayer notifications on startup if toggle is ON
     Future.microtask(() async {
       try {
-        final enabled = ref.read(prayerNotificationsEnabledProvider);
+        // Read directly from Hive to avoid provider async race condition
+        final prayerBox = Hive.box('prayer');
+        final enabled = prayerBox.get('notifications_enabled', defaultValue: true) as bool;
         if (enabled) {
           final timings = await ref.read(prayerTimingsProvider.future);
           final service = ref.read(prayerNotificationServiceProvider);
