@@ -34,6 +34,11 @@ class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
     await save(updated);
   }
 
+  Future<void> toggleTasbeeh(bool enabled) async {
+    final updated = state.copyWith(tasbeehEnabled: enabled);
+    await save(updated);
+  }
+
   Future<void> setMorningTime(int hour, int minute) async {
     final updated = state.copyWith(morningHour: hour, morningMinute: minute);
     await save(updated);

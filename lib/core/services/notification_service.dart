@@ -21,6 +21,7 @@ void clearPendingNotificationRoute() {
 class NotificationSettings {
   final bool morningEnabled;
   final bool eveningEnabled;
+  final bool tasbeehEnabled;
   final int morningHour;
   final int morningMinute;
   final int eveningHour;
@@ -29,6 +30,7 @@ class NotificationSettings {
   NotificationSettings({
     this.morningEnabled = true,
     this.eveningEnabled = true,
+    this.tasbeehEnabled = false,
     this.morningHour = AppConstants.defaultMorningHour,
     this.morningMinute = AppConstants.defaultMorningMinute,
     this.eveningHour = AppConstants.defaultEveningHour,
@@ -38,6 +40,7 @@ class NotificationSettings {
   Map<String, dynamic> toMap() => {
         'morningEnabled': morningEnabled,
         'eveningEnabled': eveningEnabled,
+        'tasbeehEnabled': tasbeehEnabled,
         'morningHour': morningHour,
         'morningMinute': morningMinute,
         'eveningHour': eveningHour,
@@ -48,6 +51,7 @@ class NotificationSettings {
     return NotificationSettings(
       morningEnabled: map['morningEnabled'] as bool? ?? true,
       eveningEnabled: map['eveningEnabled'] as bool? ?? true,
+      tasbeehEnabled: map['tasbeehEnabled'] as bool? ?? false,
       morningHour: map['morningHour'] as int? ?? AppConstants.defaultMorningHour,
       morningMinute: map['morningMinute'] as int? ?? AppConstants.defaultMorningMinute,
       eveningHour: map['eveningHour'] as int? ?? AppConstants.defaultEveningHour,
@@ -58,6 +62,7 @@ class NotificationSettings {
   NotificationSettings copyWith({
     bool? morningEnabled,
     bool? eveningEnabled,
+    bool? tasbeehEnabled,
     int? morningHour,
     int? morningMinute,
     int? eveningHour,
@@ -66,6 +71,7 @@ class NotificationSettings {
     return NotificationSettings(
       morningEnabled: morningEnabled ?? this.morningEnabled,
       eveningEnabled: eveningEnabled ?? this.eveningEnabled,
+      tasbeehEnabled: tasbeehEnabled ?? this.tasbeehEnabled,
       morningHour: morningHour ?? this.morningHour,
       morningMinute: morningMinute ?? this.morningMinute,
       eveningHour: eveningHour ?? this.eveningHour,
@@ -269,6 +275,12 @@ class NotificationService {
       await _scheduleEvening(settings.eveningHour, settings.eveningMinute);
     } else {
       await _cancelEvening();
+    }
+
+    if (settings.tasbeehEnabled) {
+      await _scheduleRandomTasbeeh();
+    } else {
+      await _cancelRandomTasbeeh();
     }
   }
 

@@ -10,16 +10,12 @@ import '../../shared/widgets/staggered_animation.dart';
 import '../prayer/providers/time_format_provider.dart';
 import '../prayer/providers/prayer_notification_provider.dart';
 import '../prayer/providers/prayer_provider.dart';
+import 'notification_settings_provider.dart';
 
 // Theme mode provider
 final themeModeProvider = StateProvider<ThemeMode>((ref) {
   return ThemeMode.light;
 });
-
-// Notification toggle providers
-final morningAdhkarEnabledProvider = StateProvider<bool>((ref) => false);
-final eveningAdhkarEnabledProvider = StateProvider<bool>((ref) => false);
-final randomTasbeehEnabledProvider = StateProvider<bool>((ref) => false);
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -27,9 +23,8 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final morningEnabled = ref.watch(morningAdhkarEnabledProvider);
-    final eveningEnabled = ref.watch(eveningAdhkarEnabledProvider);
-    final tasbeehEnabled = ref.watch(randomTasbeehEnabledProvider);
+    final settings = ref.watch(notificationSettingsProvider);
+    final notifier = ref.read(notificationSettingsProvider.notifier);
     final is12h = ref.watch(is12hFormatProvider);
     final prayerNotifsEnabled = ref.watch(prayerNotificationsEnabledProvider);
 
@@ -88,15 +83,12 @@ class SettingsScreen extends ConsumerWidget {
                   title: 'أذكار الصباح',
                   subtitle: 'تنبيه يومي بعد الفجر (٦:٠٠ صباحاً)',
                   trailing: Switch.adaptive(
-                    value: morningEnabled,
+                    value: settings.morningEnabled,
                     activeTrackColor: AppColors.gold,
                     onChanged: (value) async {
-                      ref.read(morningAdhkarEnabledProvider.notifier).state = value;
+                      await notifier.toggleMorning(value);
                       if (value) {
                         await NotificationService.requestPermission();
-                        await NotificationService.scheduleMorningAdhkar();
-                      } else {
-                        await NotificationService.cancelMorningAdhkar();
                       }
                     },
                   ),
@@ -111,15 +103,12 @@ class SettingsScreen extends ConsumerWidget {
                   title: 'أذكار المساء',
                   subtitle: 'تنبيه يومي قبل المغرب (٥:٠٠ مساء)',
                   trailing: Switch.adaptive(
-                    value: eveningEnabled,
+                    value: settings.eveningEnabled,
                     activeTrackColor: AppColors.gold,
                     onChanged: (value) async {
-                      ref.read(eveningAdhkarEnabledProvider.notifier).state = value;
+                      await notifier.toggleEvening(value);
                       if (value) {
                         await NotificationService.requestPermission();
-                        await NotificationService.scheduleEveningAdhkar();
-                      } else {
-                        await NotificationService.cancelEveningAdhkar();
                       }
                     },
                   ),
@@ -134,15 +123,12 @@ class SettingsScreen extends ConsumerWidget {
                   title: 'تذكير عشوائي (سبحلي)',
                   subtitle: 'تذكير للتسبيح خلال اليوم',
                   trailing: Switch.adaptive(
-                    value: tasbeehEnabled,
+                    value: settings.tasbeehEnabled,
                     activeTrackColor: AppColors.gold,
                     onChanged: (value) async {
-                      ref.read(randomTasbeehEnabledProvider.notifier).state = value;
+                      await notifier.toggleTasbeeh(value);
                       if (value) {
                         await NotificationService.requestPermission();
-                        await NotificationService.scheduleRandomTasbeeh();
-                      } else {
-                        await NotificationService.cancelRandomTasbeeh();
                       }
                     },
                   ),
